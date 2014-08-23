@@ -63,3 +63,11 @@ add_executable(rpncrontab
 )
 
 target_link_libraries(rpncron m)
+
+install(TARGETS
+	rpncron
+	rpncrontab
+	RUNTIME DESTINATION bin
+)
+
+install(FILES README.md CONFIGURATION.md DESTINATION share/doc/rpncron)

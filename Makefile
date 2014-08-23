@@ -7,6 +7,9 @@ cmake:
 	mkdir -p build/
 	cd build && cmake ..
 
+install:
+	+make -C build/ install
+
 clean:
 	+make -C build/ clean
 
@@ -18,4 +21,3 @@ rebuild:
 	mkdir -p build/
 	cd build && cmake ..
 	+make -C build/
-

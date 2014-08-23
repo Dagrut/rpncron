@@ -101,12 +101,18 @@ How do I install it?
 
 No more list here, sorry! `:-D`. To install rpncron, just run these commands :
 
-	$ cmake
-	$ make
+	$ make rebuild
 	# make install
 
-Note that the make install step won't work now, because it is not written at 
-the moment.
+If you want to install it somewhere else (the default should be something 
+like /usr/local), use :
+
+	$mkdir -p build
+	$cd build
+	$cmake ..
+	$cd ..
+	$make
+	#make install
 
 Can you show me some configuration samples? Is there a documentation for it?
 ----------------------------------------------------------------------------
