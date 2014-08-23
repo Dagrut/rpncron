@@ -1,0 +1,109 @@
+############################################
+# Here is a list of all available keywords #
+#       for the configuration files        #
+############################################
+
+Configurations :
+	mode       offset/bool
+	shell      "/bin/bash"/-
+	user       dagrut
+	group      dagrut
+	cwd        /
+	max-proc   128
+	exec       system/pipe
+	env-set HOME /home/sweet/home [override]
+	env-unset HOME
+
++Later:
+	on-output        stop log mail remove ignore (program stdout/stderr)
+	on-error         stop log mail remove ignore (program return code)
+	on-exec-error    stop log mail remove ignore (setuid/setgid/chdir/execve/fork error)
+	mail-to example@example.com [source addr?]
+	mail-cfg (Some configuration...)
+	mail-program /usr/bin/mail -s %{RPN_EMAIL_SUBJECT}% %{RPN_EMAIL_DEST}%
+
+Variables :
+	time_sec
+	time_min
+	time_hour
+	time_day
+	
+	time_SoM
+	time_MoH
+	time_Hod
+	time_dom
+	time_dow
+	time_doy
+	time_moy
+	time_year
+	time_is_dst
+	
+	proc_count
+	exec_count
+
+Functions:
+	+ - * / %
+	== === != < > <= >=
+	||    &&    or()  and()  not() !
+	||(*) &&(*) or(*) and(*)
+	int() float() string() bool() !! void()
+	swap() pop(head) pop(tail) rotate(push) rotate(pop) reverse() clear()
+	if() ifelse() switch()
+	eval()
+	= set()
+
++Later:
+	sin() cos() tan() asin() acos() atan()
+	sqrt() pow() log(e) log(2) log(10) exp()
+	rand(int) rand(float) rand(0,1) rand(char) ...
+	
+	set_time() reset_time()
+	
+	max_proc(soft) max_proc(hard)
+
+##########################
+# And here is an example #
+##########################
+
+@CFG 2M(]I5Eo
+	mode       bool
+	shell      /bin/sh
+	user       dagrut
+	group      dagrut
+	max-proc   10
+	cwd        /tmp
+	exec       pipe
+2M(]I5Eo
+
+I can't say when it will be executed... XD
+Just try it :p
+@RPN 1n#WL,]L
+		time_sec 23 * float()
+		3 2 +
+	/
+	int()
+	10 %
+	5 >
+1n#WL,]L
+
+@CMD >7/_wSf~
+
+echo 'Hello world!' > /tmp/rpncron.examples.main.rct.1
+date >> /tmp/rpncron.examples.main.rct.1
+cat <<EOF >> /tmp/rpncron.examples.main.rct.1
+Test of a
+multiline cat
+(Only available in execution mode 'pipe')
+EOF
+
+echo 1 Simple stdout text
+echo 2 Simple stderr text 1>&2
+echo 3 Simple stdout text
+echo 4 Simple stderr text 1>&2
+
+echo "I am :"
+id
+echo "I am in :"
+pwd
+
+>7/_wSf~

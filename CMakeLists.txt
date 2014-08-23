@@ -1,0 +1,65 @@
+cmake_minimum_required (VERSION 2.8)
+project(rpncron)
+
+set(CMAKE_CXX_FLAGS "-ggdb -Wall")
+
+add_executable(rpncron
+	src/rpncron.cpp
+	src/rpn/rpn_simple_token.cpp
+	src/rpn/functions/rpn_functions_arith_elem.cpp
+	src/rpn/functions/rpn_functions_comp.cpp
+	src/rpn/functions/rpn_functions_logic.cpp
+	src/rpn/functions/rpn_functions_types.cpp
+	src/rpn/functions/rpn_functions_queue.cpp
+	src/rpn/functions/rpn_functions_branching.cpp
+	src/rpn/functions/rpn_functions_misc.cpp
+	src/conf/conf_parser.cpp
+	src/args/args_parser.cpp
+	src/args/args_rc.cpp
+	src/args/args_doc_rc.cpp
+	src/os/users.cpp
+	src/os/file.cpp
+	src/os/directory.cpp
+	src/os/processes.cpp
+	src/os/environment.cpp
+	src/os/logs.cpp
+	src/os/mail.cpp
+	src/run/run.cpp
+	src/run/run_debug.cpp
+	src/run/run_list.cpp
+	src/run/run_remove.cpp
+	src/run/run_edit.cpp
+	src/utils/strings.cpp
+)
+
+target_link_libraries(rpncron m)
+
+add_executable(rpncrontab
+	src/rpncrontab.cpp
+	src/rpn/rpn_simple_token.cpp
+	src/rpn/functions/rpn_functions_arith_elem.cpp
+	src/rpn/functions/rpn_functions_comp.cpp
+	src/rpn/functions/rpn_functions_logic.cpp
+	src/rpn/functions/rpn_functions_types.cpp
+	src/rpn/functions/rpn_functions_queue.cpp
+	src/rpn/functions/rpn_functions_branching.cpp
+	src/rpn/functions/rpn_functions_misc.cpp
+	src/conf/conf_parser.cpp
+	src/args/args_parser.cpp
+	src/args/args_rct.cpp
+	src/args/args_doc_rct.cpp
+	src/os/users.cpp
+	src/os/file.cpp
+	src/os/directory.cpp
+	src/os/processes.cpp
+	src/os/environment.cpp
+	src/os/logs.cpp
+	src/os/mail.cpp
+	src/run/run.cpp
+	src/run/run_debug.cpp
+	src/run/run_list.cpp
+	src/run/run_remove.cpp
+	src/run/run_edit.cpp
+)
+
+target_link_libraries(rpncron m)

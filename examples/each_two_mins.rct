@@ -1,0 +1,50 @@
+Running a program each two minutes :
+
+First way :
+@CFG EOF
+	mode bool
+EOF
+@RPN EOF
+	time_min 2 % 0 ==
+EOF
+@CMD EOF
+date > /tmp/rpncron.examples.each_two_mins.rct.1
+EOF
+
+Second way :
+@CFG EOF
+	mode offset
+EOF
+@RPN EOF
+	120 time_sec 120 % -
+EOF
+@CMD EOF
+date > /tmp/rpncron.examples.each_two_mins.rct.2
+EOF
+
+Third way :
+@CFG EOF
+	mode bool
+EOF
+@RPN EOF
+	time_min 2 % !
+EOF
+@CMD EOF
+date > /tmp/rpncron.examples.each_two_mins.rct.3
+EOF
+
+Fourth way. There can be a time shift, and it will not always be executed at 
+exactly 00 seconds too since it will be run 120 seconds after the program 
+start.
+@CFG EOF
+	mode offset
+EOF
+@RPN EOF
+	120
+EOF
+@CMD EOF
+date > /tmp/rpncron.examples.each_two_mins.rct.4
+EOF
+
+The examples 1 and 3 will be executed when the program starts if the output 
+evaluates to true.

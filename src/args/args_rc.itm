@@ -1,0 +1,34 @@
+#ifndef ITEM
+#define ITEM(name, argcnt, exec_callback)
+#endif
+
+ITEM("-d",                      0, onDaemon)
+ITEM("--daemon",                0, onDaemon)
+
+ITEM("-r",                      0, onRun)
+ITEM("-run",                    0, onRun)
+ITEM("--run",                   0, onRun)
+
+ITEM("-rf",                     1, onRunFile)
+ITEM("--run-file",              1, onRunFile)
+
+ITEM("-rd",                     1, onRunDir)
+ITEM("--run-dir",               1, onRunDir)
+
+ITEM("-df2",                    2, onDebugFile)
+ITEM("--debug-file-2",          2, onDebugFile)
+
+ITEM("-v",                      0, onVerbose)
+ITEM("--verbose",               0, onVerbose)
+
+ITEM("-q",                      0, onQuiet)
+ITEM("--quiet",                 0, onQuiet)
+
+ITEM("-u",                      1, onUser)
+ITEM("--user",                  1, onUser)
+
+ITEM("-h",                      0, onHelp)
+ITEM("-help",                   0, onHelp)
+ITEM("--help",                  0, onHelp)
+
+#undef ITEM

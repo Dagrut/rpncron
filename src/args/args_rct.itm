@@ -1,0 +1,27 @@
+#ifndef ITEM
+#define ITEM(name, argcnt, exec_callback)
+#endif
+
+ITEM("-v",                      0, onVerbose)
+ITEM("--verbose",               0, onVerbose)
+
+ITEM("-q",                      0, onQuiet)
+ITEM("--quiet",                 0, onQuiet)
+
+ITEM("-e",                      0, onEdit)
+ITEM("--edit",                  0, onEdit)
+
+ITEM("-l",                      0, onList)
+ITEM("--list",                  0, onList)
+
+ITEM("-u",                      1, onUser)
+ITEM("--user",                  1, onUser)
+
+ITEM("-r",                      0, onRemove)
+ITEM("--remove",                0, onRemove)
+
+ITEM("-h",                      0, onHelp)
+ITEM("-help",                   0, onHelp)
+ITEM("--help",                  0, onHelp)
+
+#undef ITEM

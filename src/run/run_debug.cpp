@@ -1,0 +1,146 @@
+/*
+ * This file is part of rpncron.
+ * (C) 2014 Maxime Ferrino
+ * 
+ * rpncron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * rpncron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with rpncron.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "run_debug.hpp"
+#include "../conf/conf_parser.hpp"
+#include "../rpn/rpn.hpp"
+#include "../rpn/rpn_simple_token.hpp"
+#include "run.hpp"
+
+#include <cstdio>
+
+namespace RC {
+	namespace RunDebug {
+		static void showStack(Rpn<RpnSimpleToken> &rpn);
+		static void printEnvironment(ConfParser::ConfEntity &conf);
+	}
+	
+	void RunDebug::runDebug(ArgsRc &args) {
+		std::string dbgFile = args.getDebugFile();
+		time_t now = args.getDebugStart();
+		
+		Rpn<RpnSimpleToken> rpn;
+		ConfParser::Confs confs;
+		ConfParser::parseFile(dbgFile, confs);
+		bool cont;
+		
+		Run::prepare(rpn, now, 0, 0);
+		
+		for(int ci = 0, cl = confs.size() ; ci < cl ; ci++) {
+			ConfParser::ConfEntity &conf = confs[0];
+			try {
+				printf("# Executing configuration %d\n", ci);
+				printf("> Mode is          <%s>\n", conf.conf.mode == ConfParser::CONF_MODE_BOOL ? "bool" : "offset");
+				printf("> Shell is        ");
+				for(int i = 0, l = conf.conf.shell.size() ; i < l ; i++)
+					printf(" <%s>", conf.conf.shell[i].c_str());
+				printf("\n");
+				printf("> User ID is       <%d>\n", (int) conf.conf.user);
+				printf("> Group ID is      <%d>\n", (int) conf.conf.group);
+				printf("> CWD is           <%s>\n", conf.conf.cwd.c_str());
+				printf("> Max process is   <%d>\n", conf.conf.max_proc);
+				printf("> Exec mode is     <%s>\n", conf.conf.exec_mode == ConfParser::CONF_EXEC_MODE_PIPE ? "pipe" : "system");
+				printf("> Environement\n");
+				printEnvironment(conf);
+				printf("\n");
+				printf("\n");
+				
+				printf("# Parsing RPN expression...\n");
+				for(int ei = 0, el = conf.expr.size() ; ei < el ; ei++) {
+					printf("> \"%s\"\n", conf.expr[ei].c_str());
+					rpn.parseToken(conf.expr[ei]);
+					RunDebug::showStack(rpn);
+				}
+			}
+			catch (std::exception &e) {
+				printf("# Catched exception while processing expressions :\n# %s\n", e.what());
+				continue;
+			}
+			
+			cont = false;
+			if(rpn.queue.size() == 0) {
+				printf("# The queue is empty, the result is considered as FALSE.\n");
+			}
+			else {
+				rpn.queue.front()->parse();
+				if(rpn.queue.front()->getType() == RpnSimpleToken::TYPE_INT)
+					cont = !!rpn.queue.front()->parseAsInt();
+				else if(rpn.queue.front()->getType() == RpnSimpleToken::TYPE_FLOAT)
+					cont = !!rpn.queue.front()->parseAsFloat();
+			}
+			
+			if(conf.conf.mode == ConfParser::CONF_MODE_BOOL) {
+				if(!cont)
+					printf("# The final value evaluates to FALSE. The program will not be executed @%ld.\n", now);
+				else
+					printf("# The final value evaluates to TRUE. The program will be executed @%ld.\n", now);
+			}
+			else {
+				printf("# The program will be executed in %ld seconds.\n", rpn.queue.front()->parseAsInt());
+			}
+			
+			printf("\n");
+			printf("# Commands execution debug :\n");
+			for(int i = 0, l = conf.cmds_lines.size() ; i < l ; i++) {
+				printf("> <%s>\n", conf.cmds_lines[i].c_str());
+			}
+		}
+	}
+	
+	static void RunDebug::showStack(Rpn<RpnSimpleToken> &rpn) {
+		Rpn<RpnSimpleToken>::QueueIterator it;
+		Rpn<RpnSimpleToken>::QueueIterator end;
+		printf("|");
+		
+		it = rpn.queue.begin();
+		end = rpn.queue.end();
+		for(; it != end ; it++) {
+			switch((*it)->getType()) {
+				case RpnSimpleToken::TYPE_UNPARSED:
+					printf(" u<%s>", (*it)->getString().c_str());
+					break;
+				case RpnSimpleToken::TYPE_STRING:
+					printf(" s<%s>", (*it)->parseAsString().c_str());
+					break;
+				case RpnSimpleToken::TYPE_INT:
+					printf(" i<%ld>", (*it)->parseAsInt());
+					break;
+				case RpnSimpleToken::TYPE_FLOAT:
+					printf(" f<%lf>", (*it)->parseAsFloat());
+					break;
+			}
+		}
+		
+		printf("\n");
+	}
+	
+	static void RunDebug::printEnvironment(ConfParser::ConfEntity &conf) {
+		for(int i = 0, l = conf.conf.env_updates.size() ; i < l ; i++) {
+			if(conf.conf.env_updates[i].set) {
+				printf(" + + + + + + + set   <%s> = <%s>%s\n",
+					conf.conf.env_updates[i].key.c_str(),
+					conf.conf.env_updates[i].val.c_str(),
+					conf.conf.env_updates[i].override ? " override" : ""
+				);
+			}
+			else {
+				printf(" - - - - - - - unset <%s>\n", conf.conf.env_updates[i].key.c_str());
+			}
+		}
+	}
+}

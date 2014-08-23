@@ -1,0 +1,29 @@
+Use this file to make your own tests.
+
+@CFG .
+	env-set HOME /home/sweet/home override
+	env-unset HOME
+	exec pipe
+	mode offset
+	max-proc 2
+	on-output ignore mail log
+	on-error ignore mail log
+	on-exec-error ignore mail log
+.
+
+@RPN .
+3
+.
+
+@CMD .
+prt_var() {
+	val=`eval "echo \\$$1"`
+	echo "$1=$val"
+}
+prt_var FOOBAR
+prt_var HOME
+prt_var USER
+prt_var SHELL
+sleep 0.2
+exit 3
+.
