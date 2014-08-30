@@ -1,6 +1,6 @@
 Use this file to make your own tests.
 
-@CFG .
+@DFT .
 	env-set HOME /home/sweet/home override
 	env-unset HOME
 	exec pipe
@@ -20,10 +20,31 @@ prt_var() {
 	val=`eval "echo \\$$1"`
 	echo "$1=$val"
 }
-prt_var FOOBAR
-prt_var HOME
-prt_var USER
-prt_var SHELL
+prt_var FOOBAR > /tmp/rpncron.examples.tests.rct.1
+prt_var HOME > /tmp/rpncron.examples.tests.rct.1
+prt_var USER > /tmp/rpncron.examples.tests.rct.1
+prt_var SHELL > /tmp/rpncron.examples.tests.rct.1
+sleep 0.2
+exit 3
+.
+
+@CFG .
+	env-set FOOBAR test
+.
+
+@RPN .
+3
+.
+
+@CMD .
+prt_var() {
+	val=`eval "echo \\$$1"`
+	echo "$1=$val"
+}
+prt_var FOOBAR > /tmp/rpncron.examples.tests.rct.1
+prt_var HOME > /tmp/rpncron.examples.tests.rct.1
+prt_var USER > /tmp/rpncron.examples.tests.rct.1
+prt_var SHELL > /tmp/rpncron.examples.tests.rct.1
 sleep 0.2
 exit 3
 .

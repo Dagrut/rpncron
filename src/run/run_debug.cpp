@@ -155,14 +155,14 @@ namespace RC {
 	static void RunDebug::printEnvironment(Conf::ConfEntity &conf) {
 		for(int i = 0, l = conf.conf.env_updates.size() ; i < l ; i++) {
 			if(conf.conf.env_updates[i].set) {
-				printf(" + + + + + + + set   <%s> = <%s>%s\n",
+				printf(">> set             <%s> = <%s>%s\n",
 					conf.conf.env_updates[i].key.c_str(),
 					conf.conf.env_updates[i].val.c_str(),
 					conf.conf.env_updates[i].override ? " override" : ""
 				);
 			}
 			else {
-				printf(" - - - - - - - unset <%s>\n", conf.conf.env_updates[i].key.c_str());
+				printf(">> unset           <%s>\n", conf.conf.env_updates[i].key.c_str());
 			}
 		}
 	}

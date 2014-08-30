@@ -1,13 +1,15 @@
 General Informations
 ====================
 
-The configuration files can currently be used using one single syntax. More 
-syntax options will be added in the future. This syntax uses blocks to 
-define a configuration, an execution time, and the commands to be 
-executed (respectively `@CFG`, `@RPN` and `@CMD`).
+The configuration files can currently be used using one single syntax. This 
+syntax uses blocks to define a configuration, an execution time, and the 
+commands to be executed (respectively `@CFG`, `@RPN` and `@CMD`). You can 
+also define a default configuration with `@DFT` so that each next 
+configurations will use the values set in this block. They can of course be 
+overridden. Its syntax is exactly the same as the `@CFG` part.
 
-Each start with its keyword at the beginning of a line, followed by one 
-space and an arbitrary end delimiter. This end delimiter is used to know 
+Each block start with its keyword at the beginning of a line, followed by 
+one space and an arbitrary end delimiter. This end delimiter is used to know 
 when the block stops, and have to be written on a line alone to do so. It 
 can contain any character except the end of line (`\n`) character. An 
 example block could be :
@@ -49,7 +51,7 @@ Configuration Keywords
 @CFG part
 ---------
 
-The `@CFG` keywords are :
+The `@CFG` and `@DFT` keywords are :
 
 - **mode** The execution mode of the `@RPN` part. It can be 'offset' or 
   'bool' (default).
@@ -107,10 +109,10 @@ The `@CFG` keywords are :
   and `ignore`, to log informations, send a mail, or do nothing. Values are 
   separated with spaces. The default is `log mail`.
 
-Two other values are planed : `stop` and `remove`, to stop executing lines 
-(with the `system` execution mode), or to remove the task from the memory, 
-so that it will not be processed anymore upon file update or program 
-reload/restart.
+For the last three options, two other values are planed : `stop` and `remove`
+, to stop executing lines (with the `system` execution mode), or to remove 
+the task from the memory, so that it will not be processed anymore upon file 
+update or program reload/restart.
 
 @RPN part
 ---------

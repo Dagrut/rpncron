@@ -28,10 +28,12 @@
 #define RC_CONF_CB_CFG			"@CFG "
 #define RC_CONF_CB_RPN			"@RPN "
 #define RC_CONF_CB_CMD			"@CMD "
+#define RC_CONF_CB_DFT			"@DFT "
 
 #define RC_CONF_CB_CFG_L		(sizeof(RC_CONF_CB_CFG) - 1)
 #define RC_CONF_CB_RPN_L		(sizeof(RC_CONF_CB_RPN) - 1)
 #define RC_CONF_CB_CMD_L		(sizeof(RC_CONF_CB_CMD) - 1)
+#define RC_CONF_CB_DFT_L		(sizeof(RC_CONF_CB_DFT) - 1)
 
 namespace RC {
 	namespace Conf {
@@ -97,6 +99,10 @@ namespace RC {
 				parser->have_cmds = true;
 				parser->line_cb = onParserCmds;
 			}
+			else if(line.compare(0, RC_CONF_CB_DFT_L, RC_CONF_CB_DFT) == 0) {
+				parser->end_of_block = line.substr(RC_CONF_CB_DFT_L);
+				parser->line_cb = onParserDefault;
+			}
 		}
 		
 		void Callbacks::onParserConf(Parser* parser, const std::string &line) {
@@ -145,6 +151,16 @@ namespace RC {
 			}
 			else {
 				parser->current_ci.cmds_lines.push_back(line);
+			}
+		}
+		
+		void Callbacks::onParserDefault(Parser* parser, const std::string &line) {
+			if(line == parser->end_of_block) {
+				parser->line_cb = onParserStart;
+				parser->reset();
+			}
+			else {
+				parseConfBlockLine(parser->default_ci, line);
 			}
 		}
 		

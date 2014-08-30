@@ -40,10 +40,12 @@ namespace RC {
 				static void parseString(const std::string &content, Confs &confs);
 				
 				void reset();
+				void resetDefaultConfiguration();
 				
 				LineCallback line_cb;
 				int current_line;
 				
+				ConfEntity default_ci;
 				ConfEntity current_ci;
 				
 				std::string end_of_block;

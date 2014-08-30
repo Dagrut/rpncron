@@ -31,6 +31,7 @@
 namespace RC {
 	namespace Conf {
 		Parser::Parser() {
+			this->resetDefaultConfiguration();
 			this->reset();
 		}
 		
@@ -81,26 +82,26 @@ namespace RC {
 		void Parser::reset() {
 			this->line_cb = Callbacks::onParserStart;
 			
-			this->current_ci.conf.mode            = CONF_MODE_BOOL;
-			this->current_ci.conf.shell.clear();
-			this->current_ci.conf.shell.push_back(OS::Users::getCurrentUserShell());
-			this->current_ci.conf.user            = OS::Users::getCurrentUserID();
-			this->current_ci.conf.group           = OS::Users::getCurrentGroupID();
-			this->current_ci.conf.max_proc        = RPNCRON_CONF_DEFAULT_MAX_PROC;
-			this->current_ci.conf.cwd             = RPNCRON_CONF_DEFAULT_CWD_DIR;
-			this->current_ci.conf.exec_mode       = CONF_EXEC_MODE_PIPE;
-			this->current_ci.conf.code_err_action = CONF_ON_ERROR_LOG | CONF_ON_ERROR_MAIL;
-			this->current_ci.conf.output_action   = CONF_ON_ERROR_LOG | CONF_ON_ERROR_MAIL;
-			this->current_ci.conf.exec_err_action = CONF_ON_ERROR_LOG | CONF_ON_ERROR_MAIL;
-			
-			this->current_ci.expr.clear();
-			this->current_ci.cmds_lines.clear();
+			this->current_ci = this->default_ci;
 			
 			this->expr_buff.str("");
 			
 			this->have_conf = false;
 			this->have_cmds = false;
 			this->have_expr = false;
+		}
+		
+		void Parser::resetDefaultConfiguration() {
+			this->default_ci.conf.mode            = CONF_MODE_BOOL;
+			this->default_ci.conf.shell.push_back(OS::Users::getCurrentUserShell());
+			this->default_ci.conf.user            = OS::Users::getCurrentUserID();
+			this->default_ci.conf.group           = OS::Users::getCurrentGroupID();
+			this->default_ci.conf.max_proc        = RPNCRON_CONF_DEFAULT_MAX_PROC;
+			this->default_ci.conf.cwd             = RPNCRON_CONF_DEFAULT_CWD_DIR;
+			this->default_ci.conf.exec_mode       = CONF_EXEC_MODE_PIPE;
+			this->default_ci.conf.code_err_action = CONF_ON_ERROR_LOG | CONF_ON_ERROR_MAIL;
+			this->default_ci.conf.output_action   = CONF_ON_ERROR_LOG | CONF_ON_ERROR_MAIL;
+			this->default_ci.conf.exec_err_action = CONF_ON_ERROR_LOG | CONF_ON_ERROR_MAIL;
 		}
 	}
 }
