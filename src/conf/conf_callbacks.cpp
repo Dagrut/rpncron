@@ -1,3 +1,21 @@
+/*
+ * This file is part of rpncron.
+ * (C) 2014 Maxime Ferrino
+ * 
+ * rpncron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * rpncron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with rpncron.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "conf_callbacks.hpp"
 #include "conf_parser.hpp"
 
@@ -43,20 +61,20 @@ namespace RC {
 			if(line.compare(0, RC_CONF_CB_CFG_L, RC_CONF_CB_CFG) == 0) {
 				if(parser->have_conf) {
 					throw ParseError(
-						"Found two " RPNCRON_CONF_PARSER_CONFIGURATION
+						"Found two " RC_CONF_CB_CFG
 						" blocks side by side ",
 						parser->current_line
 					);
 				}
 				
-				parser->end_of_block = line.substr(RPNCRON_CONF_PARSER_CONFIGURATION_LEN);
+				parser->end_of_block = line.substr(RC_CONF_CB_CFG_L);
 				parser->have_conf = true;
 				parser->line_cb = onParserConf;
 			}
 			else if(line.compare(0, RC_CONF_CB_RPN_L, RC_CONF_CB_RPN) == 0) {
 				if(parser->have_expr) {
 					throw ParseError(
-						"Found two " RPNCRON_CONF_PARSER_EXPRESSION
+						"Found two " RC_CONF_CB_RPN
 						" blocks side by side ",
 						parser->current_line
 					);
@@ -69,13 +87,13 @@ namespace RC {
 			else if(line.compare(0, RC_CONF_CB_CMD_L, RC_CONF_CB_CMD) == 0) {
 				if(parser->have_cmds) {
 					throw ParseError(
-						"Found two " RPNCRON_CONF_PARSER_COMMANDS
+						"Found two " RC_CONF_CB_CMD
 						" blocks side by side ",
 						parser->current_line
 					);
 				}
 				
-				parser->end_of_block = line.substr(RPNCRON_CONF_PARSER_COMMANDS_LEN);
+				parser->end_of_block = line.substr(RC_CONF_CB_CMD_L);
 				parser->have_cmds = true;
 				parser->line_cb = onParserCmds;
 			}
@@ -99,10 +117,13 @@ namespace RC {
 			
 			if(line == parser->end_of_block) {
 				Rpn<void>::parse(parser->expr_buff.str(), parser->current_ci.expr);
-				if(parser->have_expr) {
+				if(parser->have_cmds) {
 					checkConfEntity(parser->current_ci);
 					parser->output_confs->push_back(parser->current_ci);
 					parser->reset();
+				}
+				else {
+					parser->line_cb = onParserStart;
 				}
 			}
 			else {
@@ -117,6 +138,9 @@ namespace RC {
 					checkConfEntity(parser->current_ci);
 					parser->output_confs->push_back(parser->current_ci);
 					parser->reset();
+				}
+				else {
+					parser->line_cb = onParserStart;
 				}
 			}
 			else {
@@ -133,6 +157,7 @@ namespace RC {
 			
 			static std::map<std::string, ConfBlockCmdCallback> kvMap;
 			std::map<std::string, ConfBlockCmdCallback>::iterator it;
+			
 			if(kvMap.size() == 0) {
 				kvMap.insert(std::make_pair("mode",          parseConfBlockCmdMode));
 				kvMap.insert(std::make_pair("shell",         parseConfBlockCmdShell));

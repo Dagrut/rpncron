@@ -28,6 +28,7 @@ namespace RC {
 	namespace RunDebug {
 		static void showStack(Rpn<RpnSimpleToken> &rpn);
 		static void printEnvironment(Conf::ConfEntity &conf);
+		static void printEventsFlags(const char *desc, int code);
 	}
 	
 	void RunDebug::runDebug(ArgsRc &args) {
@@ -40,27 +41,30 @@ namespace RC {
 		
 		bool cont;
 		
-		Run::prepare(rpn, now, 0, 0);
-		
 		for(int ci = 0, cl = confs.size() ; ci < cl ; ci++) {
-			Conf::ConfEntity &conf = confs[0];
+			Conf::ConfEntity &conf = confs[ci];
+			
+			Run::prepare(rpn, now, 0, 0);
+			
+			printf("# Executing configuration %d\n", ci);
+			printf("> Mode is          <%s>\n", conf.conf.mode == Conf::CONF_MODE_BOOL ? "bool" : "offset");
+			printf("> Shell is        ");
+			for(int i = 0, l = conf.conf.shell.size() ; i < l ; i++)
+				printf(" <%s>", conf.conf.shell[i].c_str());
+			printf("\n");
+			printf("> User ID is       <%d>\n", (int) conf.conf.user);
+			printf("> Group ID is      <%d>\n", (int) conf.conf.group);
+			printf("> CWD is           <%s>\n", conf.conf.cwd.c_str());
+			printf("> Max process is   <%d>\n", conf.conf.max_proc);
+			printf("> Exec mode is     <%s>\n", conf.conf.exec_mode == Conf::CONF_EXEC_MODE_PIPE ? "pipe" : "system");
+			printEventsFlags("On error        ", conf.conf.code_err_action);
+			printEventsFlags("On output       ", conf.conf.output_action);
+			printEventsFlags("On exec error   ", conf.conf.exec_err_action);
+			printf("> Environement     <%lu>\n", conf.conf.env_updates.size());
+			printEnvironment(conf);
+			printf("\n");
+			
 			try {
-				printf("# Executing configuration %d\n", ci);
-				printf("> Mode is          <%s>\n", conf.conf.mode == Conf::CONF_MODE_BOOL ? "bool" : "offset");
-				printf("> Shell is        ");
-				for(int i = 0, l = conf.conf.shell.size() ; i < l ; i++)
-					printf(" <%s>", conf.conf.shell[i].c_str());
-				printf("\n");
-				printf("> User ID is       <%d>\n", (int) conf.conf.user);
-				printf("> Group ID is      <%d>\n", (int) conf.conf.group);
-				printf("> CWD is           <%s>\n", conf.conf.cwd.c_str());
-				printf("> Max process is   <%d>\n", conf.conf.max_proc);
-				printf("> Exec mode is     <%s>\n", conf.conf.exec_mode == Conf::CONF_EXEC_MODE_PIPE ? "pipe" : "system");
-				printf("> Environement\n");
-				printEnvironment(conf);
-				printf("\n");
-				printf("\n");
-				
 				printf("# Parsing RPN expression...\n");
 				for(int ei = 0, el = conf.expr.size() ; ei < el ; ei++) {
 					printf("> \"%s\"\n", conf.expr[ei].c_str());
@@ -100,6 +104,7 @@ namespace RC {
 			for(int i = 0, l = conf.cmds_lines.size() ; i < l ; i++) {
 				printf("> <%s>\n", conf.cmds_lines[i].c_str());
 			}
+			printf("\n\n");
 		}
 	}
 	
@@ -128,6 +133,23 @@ namespace RC {
 		}
 		
 		printf("\n");
+	}
+	
+	static void RunDebug::printEventsFlags(const char *desc, int code) {
+		printf("> %s <", desc);
+		if(code & Conf::CONF_ON_ERROR_IGNORE) {
+			printf("ignore>\n");
+			return;
+		}
+		
+		if(code & Conf::CONF_ON_ERROR_LOG) {
+			printf("log");
+			if(code & Conf::CONF_ON_ERROR_MAIL)
+				printf(" mail>\n");
+		}
+		else if(code & Conf::CONF_ON_ERROR_MAIL) {
+			printf("mail>\n");
+		}
 	}
 	
 	static void RunDebug::printEnvironment(Conf::ConfEntity &conf) {
