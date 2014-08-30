@@ -199,3 +199,9 @@ This part also contains functions. Here is a list of available functions :
   'a b = c b =' will do 'b=a', and then 'a=c' and not 'b=c' as you would 
   expect, since the second 'b' will be translated to 'a' first. Read the 
   'Parser details' part for more informations.
+- **min2sec() hour2sec() day2sec() week2sec() year2sec()**
+  **sec2min() sec2hour() sec2day() sec2week() sec2year()** Time unit 
+  conversion. These are short ways for the product/division with the 
+  appropriate time amount in a readable way. For example, min2sec makes a 
+  product by 60 with the first value of the queue. The values are converted 
+  to integers before computation.

@@ -25,6 +25,7 @@
 #include "../rpn/functions/rpn_functions_queue.hpp"
 #include "../rpn/functions/rpn_functions_branching.hpp"
 #include "../rpn/functions/rpn_functions_misc.hpp"
+#include "../rpn/functions/rpn_functions_time.hpp"
 
 #include "../os/processes.hpp"
 #include "../os/file.hpp"
@@ -88,6 +89,7 @@ namespace RC {
 		RpnFunctionsQueue::load(rpn);
 		RpnFunctionsBranching::load(rpn);
 		RpnFunctionsMisc::load(rpn);
+		RpnFunctionsTime::load(rpn);
 	}
 	
 	void Run::run(ArgsRc &args) {

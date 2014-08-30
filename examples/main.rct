@@ -51,6 +51,8 @@ Functions:
 	if() ifelse() switch()
 	eval()
 	= set()
+	min2sec() hour2sec() day2sec() week2sec() year2sec()
+	sec2min() sec2hour() sec2day() sec2week() sec2year()
 
 +Later:
 	sin() cos() tan() asin() acos() atan()
@@ -60,9 +62,6 @@ Functions:
 	set_time() reset_time()
 	
 	max_proc(soft) max_proc(hard)
-	
-	min2sec() hours2sec() days2sec() years2sec()
-	sec2min() sec2hours() sec2days() sec2years()
 
 ##########################
 # And here is an example #
