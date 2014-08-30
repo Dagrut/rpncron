@@ -135,7 +135,7 @@ Here is a list (YEAH!) of what is missing and what is done :
 - [X] Add the option to run the program as a whole script instead of a set of 
       commands.
 - [X] Change the setuid/setgid/cwd of the ran programs if needed.
-- [ ] Write the `make install` code.
+- [X] Write the `make install` code.
 - [ ] Search for security issues.
 - [ ] Prepare some unit tests.
 - [ ] Test extensively the program.
