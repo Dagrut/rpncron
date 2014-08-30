@@ -133,7 +133,7 @@ namespace RC {
 		OS::File fstats;
 		std::string dir_item;
 		std::string dir_item_path;
-		ConfParser::Confs tmp_conf_list;
+		Conf::Parser::Confs tmp_conf_list;
 		
 		if(dir.open(path) == true) {
 			while(dir.next(dir_item) != false) {
@@ -148,9 +148,9 @@ namespace RC {
 				
 				tmp_conf_list.clear();
 				try {
-					ConfParser::parseFile(dir_item_path, tmp_conf_list);
+					Conf::Parser::parseFile(dir_item_path, tmp_conf_list);
 				}
-				catch(ConfParser::ParseError &e) {
+				catch(Conf::ParseError &e) {
 					DEBUG("Parse error on file %s : %s\n", dir_item_path.c_str(), e.what());
 					continue;
 				}
@@ -164,7 +164,7 @@ namespace RC {
 	
 	void Run::loadFile(const std::string &path) {
 		OS::File fstats;
-		ConfParser::Confs tmp_conf_list;
+		Conf::Parser::Confs tmp_conf_list;
 		
 		fstats.open(path);
 		
@@ -175,9 +175,9 @@ namespace RC {
 		
 		tmp_conf_list.clear();
 		try {
-			ConfParser::parseFile(path, tmp_conf_list);
+			Conf::Parser::parseFile(path, tmp_conf_list);
 		}
-		catch(ConfParser::ParseError &e) {
+		catch(Conf::ParseError &e) {
 			DEBUG("Parse error on file %s : %s\n", path.c_str(), e.what());
 			return;
 		}
@@ -190,7 +190,7 @@ namespace RC {
 		OS::File fstats;
 		std::string dir_item;
 		std::string dir_item_path;
-		ConfParser::Confs tmp_conf_list;
+		Conf::Parser::Confs tmp_conf_list;
 		
 		if(dir.open(path) == true) {
 			while(dir.next(dir_item) != false) {
@@ -217,9 +217,9 @@ namespace RC {
 				
 				tmp_conf_list.clear();
 				try {
-					ConfParser::parseFile(dir_item_path, tmp_conf_list);
+					Conf::Parser::parseFile(dir_item_path, tmp_conf_list);
 				}
-				catch(ConfParser::ParseError &e) {
+				catch(Conf::ParseError &e) {
 					DEBUG("Parse error on file %s : %s\n", dir_item_path.c_str(), e.what());
 					continue;
 				}
@@ -232,7 +232,7 @@ namespace RC {
 	}
 	
 	void Run::insertConfs(
-		ConfParser::Confs &list,
+		Conf::Parser::Confs &list,
 		bool is_user,
 		const std::string &identifier
 	) {
@@ -277,7 +277,7 @@ namespace RC {
 		}
 		
 		if(rpn.result_size() == 0) {
-			if(task->ce.conf.mode == ConfParser::CONF_MODE_OFFSET) {
+			if(task->ce.conf.mode == Conf::CONF_MODE_OFFSET) {
 				DEBUG("Task %d of %s %s have an empty ouput. Ignoring task!\n",
 					task->task_id + 1,
 					task->is_user ? "user" : "file",
@@ -291,7 +291,7 @@ namespace RC {
 			}
 		}
 		
-		if(task->ce.conf.mode == ConfParser::CONF_MODE_OFFSET)
+		if(task->ce.conf.mode == Conf::CONF_MODE_OFFSET)
 			task->exec_time = now + rpn.result()->parseAsInt();
 		else
 			task->exec_time = RpnSimpleToken::getBoolValue(rpn.result()) ? Run::curMin(now) : Run::nextMin(now);
@@ -337,7 +337,7 @@ namespace RC {
 				it2 = it;
 				it2++;
 				
-				if((*it)->ce.conf.mode == ConfParser::CONF_MODE_BOOL) {
+				if((*it)->ce.conf.mode == Conf::CONF_MODE_BOOL) {
 					this->tasks_db.erase(it);
 					ret = this->processConfModeBool(t);
 					if(ret)
@@ -345,7 +345,7 @@ namespace RC {
 					else
 						delete t;
 				}
-				else if((*it)->ce.conf.mode == ConfParser::CONF_MODE_OFFSET) {
+				else if((*it)->ce.conf.mode == Conf::CONF_MODE_OFFSET) {
 					this->tasks_db.erase(it);
 					ret = this->processConfModeOffset(t);
 					if(ret)
@@ -468,10 +468,10 @@ namespace RC {
 		
 		this->prepareTaskContext(t);
 		
-		if(t->ce.conf.exec_mode == ConfParser::CONF_EXEC_MODE_SYSTEM) {
+		if(t->ce.conf.exec_mode == Conf::CONF_EXEC_MODE_SYSTEM) {
 			this->executeTaskSystem(t);
 		}
-		else if(t->ce.conf.exec_mode == ConfParser::CONF_EXEC_MODE_PIPE) {
+		else if(t->ce.conf.exec_mode == Conf::CONF_EXEC_MODE_PIPE) {
 			this->executeTaskPipe(t);
 		}
 		else {
@@ -577,10 +577,10 @@ namespace RC {
 	}
 	
 	void Run::onExecError(Run::Task *t, const char *err) {
-		if(t->ce.conf.exec_err_action & ConfParser::CONF_ON_ERROR_IGNORE)
+		if(t->ce.conf.exec_err_action & Conf::CONF_ON_ERROR_IGNORE)
 			return;
 		
-		if(t->ce.conf.exec_err_action & ConfParser::CONF_ON_ERROR_LOG) {
+		if(t->ce.conf.exec_err_action & Conf::CONF_ON_ERROR_LOG) {
 			Logs::log(Logs::LVL_WARN, "Error when executing task %d of %s : %s",
 				t->task_id,
 				t->identifier.c_str(),
@@ -588,7 +588,7 @@ namespace RC {
 			);
 		}
 		
-		if(t->ce.conf.exec_err_action & ConfParser::CONF_ON_ERROR_MAIL) {
+		if(t->ce.conf.exec_err_action & Conf::CONF_ON_ERROR_MAIL) {
 			OS::Mail toSend;
 			std::string body;
 			
@@ -616,8 +616,8 @@ namespace RC {
 			return;
 		
 		if(
-			t->ce.conf.code_err_action & ConfParser::CONF_ON_ERROR_IGNORE &&
-			t->ce.conf.output_action & ConfParser::CONF_ON_ERROR_IGNORE
+			t->ce.conf.code_err_action & Conf::CONF_ON_ERROR_IGNORE &&
+			t->ce.conf.output_action & Conf::CONF_ON_ERROR_IGNORE
 		)
 			return;
 		
@@ -625,13 +625,13 @@ namespace RC {
 		bool is_retcode;
 		is_output =
 			output.size() != 0 &&
-			t->ce.conf.output_action & ConfParser::CONF_ON_ERROR_LOG &&
-			!(t->ce.conf.output_action & ConfParser::CONF_ON_ERROR_IGNORE)
+			t->ce.conf.output_action & Conf::CONF_ON_ERROR_LOG &&
+			!(t->ce.conf.output_action & Conf::CONF_ON_ERROR_IGNORE)
 			;
 		is_retcode =
 			return_code != 0 &&
-			t->ce.conf.code_err_action & ConfParser::CONF_ON_ERROR_LOG &&
-			!(t->ce.conf.code_err_action & ConfParser::CONF_ON_ERROR_IGNORE);
+			t->ce.conf.code_err_action & Conf::CONF_ON_ERROR_LOG &&
+			!(t->ce.conf.code_err_action & Conf::CONF_ON_ERROR_IGNORE);
 		
 		if(is_retcode) {
 			Logs::log(Logs::LVL_WARN, "Task %d of %s failed with returned code %d",
@@ -650,12 +650,12 @@ namespace RC {
 		
 		is_output =
 			output.size() != 0 &&
-			t->ce.conf.output_action & ConfParser::CONF_ON_ERROR_MAIL &&
-			!(t->ce.conf.output_action & ConfParser::CONF_ON_ERROR_IGNORE);
+			t->ce.conf.output_action & Conf::CONF_ON_ERROR_MAIL &&
+			!(t->ce.conf.output_action & Conf::CONF_ON_ERROR_IGNORE);
 		is_retcode =
 			return_code != 0 &&
-			t->ce.conf.code_err_action & ConfParser::CONF_ON_ERROR_MAIL &&
-			!(t->ce.conf.code_err_action & ConfParser::CONF_ON_ERROR_IGNORE);
+			t->ce.conf.code_err_action & Conf::CONF_ON_ERROR_MAIL &&
+			!(t->ce.conf.code_err_action & Conf::CONF_ON_ERROR_IGNORE);
 		
 		if(is_output || is_retcode) {
 			OS::Mail toSend;

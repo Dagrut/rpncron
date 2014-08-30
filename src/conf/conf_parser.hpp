@@ -19,13 +19,13 @@
 #ifndef _HPP_RPNCRON_CONF_CONF_PARSER_
 #define _HPP_RPNCRON_CONF_CONF_PARSER_
 
+#include "conf.hpp"
+
 #include <string>
 #include <vector>
+#include <map>
 
-#include <exception>
-
-#include "../os/users.hpp"
-#include "../utils/str_fmt.hpp"
+#include <sstream>
 
 #define RPNCRON_CONF_PARSER_CONFIGURATION "@CFG "
 #define RPNCRON_CONF_PARSER_CONFIGURATION_LEN (sizeof(RPNCRON_CONF_PARSER_CONFIGURATION) - 1)
@@ -39,78 +39,33 @@
 #define RPNCRON_CONF_DEFAULT_CWD_DIR  "/"
 
 namespace RC {
-	namespace ConfParser {
-		class ParseError : public std::exception {
+	namespace Conf {
+		class Parser {
 			public:
-				ParseError(const std::string &e, int line) {
-					this->e = "At line ";
-					this->e += Utils::format("%d", line);
-					this->e += " : ";
-					this->e += e;
-				}
-				virtual ~ParseError() throw() {}
+				typedef std::vector<ConfEntity> Confs;
 				
-				const char* what() const throw() {
-					return(this->e.c_str());
-				}
+				static bool parseFile(const std::string &path, Confs &confs);
+				static void parseString(const std::string &content, Confs &confs);
+				
+				void reset();
+				
+				LineCallback line_cb;
+				int current_line;
+				
+				ConfEntity current_ci;
+				
+				std::string end_of_block;
+				
+				bool have_conf;
+				bool have_expr;
+				bool have_cmds;
+				
+				Confs *output_confs;
+				std::ostringstream expr_buff;
 				
 			private:
-				std::string e;
+				Parser();
 		};
-		
-		struct EnvUpdate {
-			EnvUpdate(const std::string &key) :
-				set(false), key(key)
-			{}
-			EnvUpdate(const std::string &key, const std::string &val) :
-				set(true), override(false), key(key), val(val)
-			{}
-			bool set;
-			bool override;
-			std::string key;
-			std::string val;
-		};
-		
-		enum ConfEntityMode {
-			CONF_MODE_BOOL,
-			CONF_MODE_OFFSET,
-		};
-		
-		enum ConfEntityExecMode {
-			CONF_EXEC_MODE_SYSTEM,
-			CONF_EXEC_MODE_PIPE,
-		};
-		
-		enum ConfEntityErrorAction {
-			CONF_ON_ERROR_LOG    = 1 << 0,
-			CONF_ON_ERROR_MAIL   = 1 << 1,
-			CONF_ON_ERROR_IGNORE = 1 << 2,
-		};
-		
-		struct ConfEntity {
-			struct Conf {
-				ConfEntityMode mode;
-				std::vector<std::string> shell;
-				OS::Users::UserID  user;
-				OS::Users::GroupID group;
-				unsigned int max_proc;
-				ConfEntityExecMode exec_mode;
-				int code_err_action; /** < ConfEntityErrorAction */
-				int output_action;   /** < ConfEntityErrorAction */
-				int exec_err_action; /** < ConfEntityErrorAction */
-				std::string cwd;
-				std::vector<EnvUpdate> env_updates;
-			} conf;
-			std::vector<std::string> expr;
-			std::vector<std::string> cmds_lines;
-			std::vector<char> cmds_block;
-			//std::vector<std::string> cmds;
-		};
-		
-		typedef std::vector<ConfEntity> Confs;
-		
-		bool parseFile(const std::string &path, Confs &confs);
-		void parseString(const std::string &content, Confs &confs);
 	}
 }
 

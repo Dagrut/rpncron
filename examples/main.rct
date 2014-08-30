@@ -60,6 +60,9 @@ Functions:
 	set_time() reset_time()
 	
 	max_proc(soft) max_proc(hard)
+	
+	min2sec() hours2sec() days2sec() years2sec()
+	sec2min() sec2hours() sec2days() sec2years()
 
 ##########################
 # And here is an example #

@@ -45,8 +45,8 @@ RPNCRON_PROGRAM_MKVERSION( \
 	printf("ERROR: THAT SHOULD NEVER HAPPEN! (%s:%d)\n", __FILE__, __LINE__); \
 	exit(1);
 
-#define DEBUG(...) \
-	fprintf(stderr, __VA_ARGS__)
+#define DEBUG(...) /*\
+	fprintf(stderr, __VA_ARGS__)*/
 
 #define FATAL(...) \
 	fprintf(stderr, __VA_ARGS__); \

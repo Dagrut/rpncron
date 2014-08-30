@@ -19,6 +19,8 @@
 #ifndef _HPP_RPNCRON_UTILS_STRFMT_
 #define _HPP_RPNCRON_UTILS_STRFMT_
 
+#include <string>
+
 #include <cstdio>
 
 namespace RC {

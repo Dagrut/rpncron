@@ -27,7 +27,7 @@
 namespace RC {
 	namespace RunDebug {
 		static void showStack(Rpn<RpnSimpleToken> &rpn);
-		static void printEnvironment(ConfParser::ConfEntity &conf);
+		static void printEnvironment(Conf::ConfEntity &conf);
 	}
 	
 	void RunDebug::runDebug(ArgsRc &args) {
@@ -35,17 +35,18 @@ namespace RC {
 		time_t now = args.getDebugStart();
 		
 		Rpn<RpnSimpleToken> rpn;
-		ConfParser::Confs confs;
-		ConfParser::parseFile(dbgFile, confs);
+		Conf::Parser::Confs confs;
+		Conf::Parser::parseFile(dbgFile, confs);
+		
 		bool cont;
 		
 		Run::prepare(rpn, now, 0, 0);
 		
 		for(int ci = 0, cl = confs.size() ; ci < cl ; ci++) {
-			ConfParser::ConfEntity &conf = confs[0];
+			Conf::ConfEntity &conf = confs[0];
 			try {
 				printf("# Executing configuration %d\n", ci);
-				printf("> Mode is          <%s>\n", conf.conf.mode == ConfParser::CONF_MODE_BOOL ? "bool" : "offset");
+				printf("> Mode is          <%s>\n", conf.conf.mode == Conf::CONF_MODE_BOOL ? "bool" : "offset");
 				printf("> Shell is        ");
 				for(int i = 0, l = conf.conf.shell.size() ; i < l ; i++)
 					printf(" <%s>", conf.conf.shell[i].c_str());
@@ -54,7 +55,7 @@ namespace RC {
 				printf("> Group ID is      <%d>\n", (int) conf.conf.group);
 				printf("> CWD is           <%s>\n", conf.conf.cwd.c_str());
 				printf("> Max process is   <%d>\n", conf.conf.max_proc);
-				printf("> Exec mode is     <%s>\n", conf.conf.exec_mode == ConfParser::CONF_EXEC_MODE_PIPE ? "pipe" : "system");
+				printf("> Exec mode is     <%s>\n", conf.conf.exec_mode == Conf::CONF_EXEC_MODE_PIPE ? "pipe" : "system");
 				printf("> Environement\n");
 				printEnvironment(conf);
 				printf("\n");
@@ -84,7 +85,7 @@ namespace RC {
 					cont = !!rpn.queue.front()->parseAsFloat();
 			}
 			
-			if(conf.conf.mode == ConfParser::CONF_MODE_BOOL) {
+			if(conf.conf.mode == Conf::CONF_MODE_BOOL) {
 				if(!cont)
 					printf("# The final value evaluates to FALSE. The program will not be executed @%ld.\n", now);
 				else
@@ -129,7 +130,7 @@ namespace RC {
 		printf("\n");
 	}
 	
-	static void RunDebug::printEnvironment(ConfParser::ConfEntity &conf) {
+	static void RunDebug::printEnvironment(Conf::ConfEntity &conf) {
 		for(int i = 0, l = conf.conf.env_updates.size() ; i < l ; i++) {
 			if(conf.conf.env_updates[i].set) {
 				printf(" + + + + + + + set   <%s> = <%s>%s\n",

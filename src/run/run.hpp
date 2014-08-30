@@ -49,7 +49,7 @@ namespace RC {
 				int task_id;
 				std::string identifier;
 				long exec_time;
-				ConfParser::ConfEntity ce;
+				Conf::ConfEntity ce;
 				std::set<OS::Processes::ID> childs;
 				long exec_count;
 				
@@ -68,7 +68,7 @@ namespace RC {
 			void loadUsers(const std::string &path);
 			
 			void insertConfs(
-				ConfParser::Confs &list,
+				Conf::Parser::Confs &list,
 				bool is_user,
 				const std::string &identifier
 			);

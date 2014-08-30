@@ -14,6 +14,7 @@ add_executable(rpncron
 	src/rpn/functions/rpn_functions_branching.cpp
 	src/rpn/functions/rpn_functions_misc.cpp
 	src/conf/conf_parser.cpp
+	src/conf/conf_callbacks.cpp
 	src/args/args_parser.cpp
 	src/args/args_rc.cpp
 	src/args/args_doc_rc.cpp
@@ -45,6 +46,7 @@ add_executable(rpncrontab
 	src/rpn/functions/rpn_functions_branching.cpp
 	src/rpn/functions/rpn_functions_misc.cpp
 	src/conf/conf_parser.cpp
+	src/conf/conf_callbacks.cpp
 	src/args/args_parser.cpp
 	src/args/args_rct.cpp
 	src/args/args_doc_rct.cpp
