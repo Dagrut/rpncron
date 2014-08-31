@@ -35,9 +35,6 @@ namespace RC {
 			this->reset();
 		}
 		
-		void parseConfBlockLine(ConfEntity &ci, std::string &buffer);
-		void checkConfEntity(ConfEntity &ci);
-		
 		bool Parser::parseFile(const std::string &path, Confs &confs) {
 			std::ifstream ifs;
 			std::ostringstream oss;

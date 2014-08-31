@@ -37,24 +37,31 @@
 
 namespace RC {
 	namespace Conf {
-		void parseConfBlockLine(ConfEntity &ci, const std::string &line);
-		void checkConfEntity(ConfEntity &ci);
-		
-		typedef void (*ConfBlockCmdCallback)(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdMode(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdShell(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdUser(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdGroup(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdMaxProc(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdCwd(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdExec(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdEnvSet(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdEnvUnset(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdOnOutput(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdOnError(ConfEntity &ci, std::vector<std::string> &tokens);
-		void parseConfBlockCmdOnExecError(ConfEntity &ci, std::vector<std::string> &tokens);
-		
-		void parseConfBlockCmdOnEvent(int &output, std::vector<std::string> &tokens);
+		namespace Callbacks {
+			static void onParserConf(Parser* parser, const std::string &line);
+			static void onParserRpn(Parser* parser, const std::string &line);
+			static void onParserCmds(Parser* parser, const std::string &line);
+			static void onParserDefault(Parser* parser, const std::string &line);
+			
+			static void parseConfBlockLine(ConfEntity &ci, const std::string &line);
+			static void checkConfEntity(ConfEntity &ci);
+			
+			typedef void (*ConfBlockCmdCallback)(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdMode(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdShell(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdUser(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdGroup(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdMaxProc(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdCwd(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdExec(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdEnvSet(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdEnvUnset(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdOnOutput(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdOnError(ConfEntity &ci, std::vector<std::string> &tokens);
+			static void parseConfBlockCmdOnExecError(ConfEntity &ci, std::vector<std::string> &tokens);
+			
+			static void parseConfBlockCmdOnEvent(int &output, std::vector<std::string> &tokens);
+		}
 		
 		void Callbacks::onParserStart(Parser* parser, const std::string &line) {
 			if(line.size() == 0)
@@ -105,7 +112,7 @@ namespace RC {
 			}
 		}
 		
-		void Callbacks::onParserConf(Parser* parser, const std::string &line) {
+		static void Callbacks::onParserConf(Parser* parser, const std::string &line) {
 			if(line.size() == 0)
 				return;
 			
@@ -117,7 +124,7 @@ namespace RC {
 			}
 		}
 		
-		void Callbacks::onParserRpn(Parser* parser, const std::string &line) {
+		static void Callbacks::onParserRpn(Parser* parser, const std::string &line) {
 			if(line.size() == 0)
 				return;
 			
@@ -138,7 +145,7 @@ namespace RC {
 			}
 		}
 		
-		void Callbacks::onParserCmds(Parser* parser, const std::string &line) {
+		static void Callbacks::onParserCmds(Parser* parser, const std::string &line) {
 			if(line == parser->end_of_block) {
 				if(parser->have_expr) {
 					checkConfEntity(parser->current_ci);
@@ -154,7 +161,7 @@ namespace RC {
 			}
 		}
 		
-		void Callbacks::onParserDefault(Parser* parser, const std::string &line) {
+		static void Callbacks::onParserDefault(Parser* parser, const std::string &line) {
 			if(line == parser->end_of_block) {
 				parser->line_cb = onParserStart;
 				parser->reset();
@@ -164,7 +171,7 @@ namespace RC {
 			}
 		}
 		
-		void parseConfBlockLine(ConfEntity &ci, const std::string &line) {
+		static void Callbacks::parseConfBlockLine(ConfEntity &ci, const std::string &line) {
 			std::vector<std::string> tokens;
 			
 			Rpn<void>::parse(line, tokens);
@@ -196,14 +203,14 @@ namespace RC {
 			it->second(ci, tokens);
 		}
 		
-		void parseConfBlockCmdMode(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdMode(ConfEntity &ci, std::vector<std::string> &tokens) {
 			if(tokens[1] == "bool")
 				ci.conf.mode = CONF_MODE_BOOL;
 			else if(tokens[1] == "offset")
 				ci.conf.mode = CONF_MODE_OFFSET;
 		}
 		
-		void parseConfBlockCmdShell(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdShell(ConfEntity &ci, std::vector<std::string> &tokens) {
 			ci.conf.shell.clear();
 			ci.conf.shell.insert(
 				ci.conf.shell.end(),
@@ -212,7 +219,7 @@ namespace RC {
 			);
 		}
 		
-		void parseConfBlockCmdUser(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdUser(ConfEntity &ci, std::vector<std::string> &tokens) {
 			try {
 				ci.conf.user = OS::Users::userNameToUID(tokens[1]);
 			}
@@ -221,7 +228,7 @@ namespace RC {
 			}
 		}
 		
-		void parseConfBlockCmdGroup(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdGroup(ConfEntity &ci, std::vector<std::string> &tokens) {
 			try {
 				ci.conf.group = OS::Users::groupNameToGID(tokens[1]);
 			}
@@ -230,22 +237,22 @@ namespace RC {
 			}
 		}
 		
-		void parseConfBlockCmdMaxProc(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdMaxProc(ConfEntity &ci, std::vector<std::string> &tokens) {
 			ci.conf.max_proc = atoi(tokens[1].c_str());
 		}
 		
-		void parseConfBlockCmdCwd(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdCwd(ConfEntity &ci, std::vector<std::string> &tokens) {
 			ci.conf.cwd = tokens[1];
 		}
 		
-		void parseConfBlockCmdExec(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdExec(ConfEntity &ci, std::vector<std::string> &tokens) {
 			if(tokens[1] == "system")
 				ci.conf.exec_mode = CONF_EXEC_MODE_SYSTEM;
 			else if(tokens[1] == "pipe")
 				ci.conf.exec_mode = CONF_EXEC_MODE_PIPE;
 		}
 		
-		void parseConfBlockCmdEnvSet(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdEnvSet(ConfEntity &ci, std::vector<std::string> &tokens) {
 			if(tokens.size() < 3)
 				return;
 			
@@ -258,24 +265,24 @@ namespace RC {
 			ci.conf.env_updates.push_back(eu);
 		}
 		
-		void parseConfBlockCmdEnvUnset(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdEnvUnset(ConfEntity &ci, std::vector<std::string> &tokens) {
 			EnvUpdate eu(tokens[1]);
 			ci.conf.env_updates.push_back(eu);
 		}
 		
-		void parseConfBlockCmdOnOutput(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdOnOutput(ConfEntity &ci, std::vector<std::string> &tokens) {
 			parseConfBlockCmdOnEvent(ci.conf.output_action, tokens);
 		}
 		
-		void parseConfBlockCmdOnError(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdOnError(ConfEntity &ci, std::vector<std::string> &tokens) {
 			parseConfBlockCmdOnEvent(ci.conf.code_err_action, tokens);
 		}
 		
-		void parseConfBlockCmdOnExecError(ConfEntity &ci, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdOnExecError(ConfEntity &ci, std::vector<std::string> &tokens) {
 			parseConfBlockCmdOnEvent(ci.conf.exec_err_action, tokens);
 		}
 		
-		void parseConfBlockCmdOnEvent(int &output, std::vector<std::string> &tokens) {
+		static void Callbacks::parseConfBlockCmdOnEvent(int &output, std::vector<std::string> &tokens) {
 			output = 0;
 			for(int i = 1, l = tokens.size() ; i < l ; i++) {
 				if(tokens[i] == "log")
@@ -287,7 +294,7 @@ namespace RC {
 			}
 		}
 		
-		void checkConfEntity(ConfEntity &ci) {
+		static void Callbacks::checkConfEntity(ConfEntity &ci) {
 			if(ci.conf.max_proc <= 0)
 				ci.conf.max_proc = RPNCRON_CONF_DEFAULT_MAX_PROC;
 			

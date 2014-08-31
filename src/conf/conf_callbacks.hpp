@@ -30,10 +30,6 @@ namespace RC {
 			);
 			
 			void onParserStart(Parser* parser, const std::string &line);
-			void onParserConf(Parser* parser, const std::string &line);
-			void onParserRpn(Parser* parser, const std::string &line);
-			void onParserCmds(Parser* parser, const std::string &line);
-			void onParserDefault(Parser* parser, const std::string &line);
 		}
 	}
 }
