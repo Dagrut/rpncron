@@ -107,12 +107,12 @@ No more list here, sorry! `:-D`. To install rpncron, just run these commands :
 If you want to install it somewhere else (the default should be something 
 like /usr/local), use :
 
-	$mkdir -p build
-	$cd build
-	$cmake ..
-	$cd ..
-	$make
-	#make install
+	$ mkdir -p build
+	$ cd build
+	$ cmake ..
+	$ cd ..
+	$ make
+	# make install
 
 Can you show me some configuration samples? Is there a documentation for it?
 ----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ Here is a list (YEAH!) of what is missing and what is done :
 - [ ] Test extensively the program.
 - [ ] Check for portability issues (mainly in src/os).
 - [X] Change the spawned process environment.
-- [ ] Handle errors in an other way than printf().
+- [X] Handle errors in an other way than printf().
 - [X] Log informations.
 - [X] Send mails on error.
 - [ ] Use the given verbosity level.
