@@ -18,6 +18,8 @@
 
 #include "run_rpncron.hpp"
 
+#include "run.hpp"
+
 #include "../rpn/functions/rpn_functions_arith_elem.hpp"
 #include "../rpn/functions/rpn_functions_comp.hpp"
 #include "../rpn/functions/rpn_functions_logic.hpp"
@@ -44,54 +46,6 @@
 bool RC::RunRpncron::keep_running;
 
 namespace RC {
-	void RunRpncron::prepare(Rpn<RpnSimpleToken> &rpn, long now, int proc_count, long exec_count) {
-		rpn.clearVariables();
-		rpn.clearFunctions();
-		rpn.clearQueue();
-		
-		RunRpncron::prepareProcVars(rpn, proc_count, exec_count);
-		RunRpncron::prepareTimeVars(rpn, now);
-		RunRpncron::prepareFunctions(rpn);
-	}
-	
-	void RunRpncron::prepareTimeVars(Rpn<RpnSimpleToken> &rpn, long now) {
-		rpn.addVariable("time_sec",  new RpnSimpleToken(now));
-		rpn.addVariable("time_min",  new RpnSimpleToken(now/60));
-		rpn.addVariable("time_hour", new RpnSimpleToken(now/3600));
-		rpn.addVariable("time_day",  new RpnSimpleToken(now/86400));
-		
-		struct tm date;
-		time_t now_time = now;
-		
-		localtime_r(&now_time, &date);
-		
-		rpn.addVariable("time_SoM",    new RpnSimpleToken((long) date.tm_sec));
-		rpn.addVariable("time_MoH",    new RpnSimpleToken((long) date.tm_min));
-		rpn.addVariable("time_Hod",    new RpnSimpleToken((long) date.tm_hour));
-		rpn.addVariable("time_dow",    new RpnSimpleToken((long) date.tm_wday));
-		rpn.addVariable("time_dom",    new RpnSimpleToken((long) date.tm_mday));
-		rpn.addVariable("time_moy",    new RpnSimpleToken((long) date.tm_mon));
-		rpn.addVariable("time_doy",    new RpnSimpleToken((long) date.tm_yday));
-		rpn.addVariable("time_year",   new RpnSimpleToken((long) date.tm_year + 1900));
-		rpn.addVariable("time_is_dst", new RpnSimpleToken((long) date.tm_isdst));
-	}
-	
-	void RunRpncron::prepareProcVars(Rpn<RpnSimpleToken> &rpn, int proc_count, long exec_count) {
-		rpn.addVariable("proc_count",  new RpnSimpleToken((long) proc_count));
-		rpn.addVariable("exec_count",  new RpnSimpleToken(exec_count));
-	}
-	
-	void RunRpncron::prepareFunctions(Rpn<RpnSimpleToken> &rpn) {
-		RpnFunctionsArithElem::load(rpn);
-		RpnFunctionsComp::load(rpn);
-		RpnFunctionsLogic::load(rpn);
-		RpnFunctionsTypes::load(rpn);
-		RpnFunctionsQueue::load(rpn);
-		RpnFunctionsBranching::load(rpn);
-		RpnFunctionsMisc::load(rpn);
-		RpnFunctionsTime::load(rpn);
-	}
-	
 	void RunRpncron::run(ArgsRc &args) {
 		RunRpncron me(args);
 		me.daemonize();
@@ -261,7 +215,7 @@ namespace RC {
 	bool RunRpncron::reloadTask(RunRpncron::Task *task, time_t now) {
 		Rpn<RpnSimpleToken> rpn;
 		
-		RunRpncron::prepare(rpn, now, task->childs.size(), task->exec_count);
+		Run::prepare(rpn, now, task->childs.size(), task->exec_count);
 		
 		try {
 			for(int i = 0, l = task->ce.expr.size() ; i < l ; i++) {

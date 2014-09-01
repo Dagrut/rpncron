@@ -34,11 +34,6 @@
 namespace RC {
 	class RunRpncron {
 		public:
-			static void prepare(Rpn<RpnSimpleToken> &rpn, long now, int proc_count, long exec_count);
-			static void prepareTimeVars(Rpn<RpnSimpleToken> &rpn, long now);
-			static void prepareProcVars(Rpn<RpnSimpleToken> &rpn, int proc_count, long exec_count);
-			static void prepareFunctions(Rpn<RpnSimpleToken> &rpn);
-			
 			static void run(ArgsRc &args);
 			static void runFile(ArgsRc &args);
 			static void runDir(ArgsRc &args);
