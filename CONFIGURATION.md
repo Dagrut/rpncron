@@ -139,6 +139,8 @@ Here is a list of standard variables :
 - **time_dow** (day of week) The current day of the week.
 - **time_doy** (day of year) The current day of the year.
 - **time_moy** (month of year) The current month of the year.
+- **time_wom** (week of month) The current week of the month.
+- **time_woy** (week of year) The current week of the year.
 - **time_year** The current year.
 - **time\_is\_dst** It equals 1 if we are in Daylight Saving Time (=> DST).
 - **proc_count** The number of processes that are still running for this 
@@ -150,8 +152,10 @@ Note that the ranges of each variable is the same as the one given by
 localtime(). Here are the ranges that should be used : 0 to 59 for seconds 
 and minutes (Seconds may go to 60 for a leap second), 0 to 23 for the hours, 
 1 to 31 for the day of month, 0 to 6 for the week (0 is sunday), 0 to 11 for 
-the month, 0 to 365 for the day of year. The only modified value is the 
-year, which is the correct year value, and not the years since 1900.
+the month, 0 to 365 for the day of year, 0 to 4 for the week of the month, 0 
+to 52 for the week of the year (For these last two, the first week is the 
+first one containing a monday). The only modified value is the year, which 
+is the correct year value, and not the years since 1900.
 
 This part also contains functions. Here is a list of available functions :
 

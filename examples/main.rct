@@ -35,15 +35,13 @@ Variables :
 	time_dow
 	time_doy
 	time_moy
+	time_woy
+	time_wom
 	time_year
 	time_is_dst
 	
 	proc_count
 	exec_count
-
-+Later:
-	time_woy
-	time_wom
 
 Functions:
 	+ - * / %
@@ -68,7 +66,7 @@ Functions:
 	
 	max_proc(soft) max_proc(hard)
 	
-	each(offset)
+	each_sec(offset)
 
 ##########################
 # And here is an example #

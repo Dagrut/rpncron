@@ -12,6 +12,9 @@ Use this file to make your own tests.
 .
 
 @RPN .
+time_dow
+time_wom
+time_woy
 "*/2 * * * *" eval(vixie)
 .
 

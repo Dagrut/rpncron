@@ -70,6 +70,8 @@ namespace RC {
 		rpn.addVariable("time_dom",    new RpnSimpleToken((long) date.tm_mday));
 		rpn.addVariable("time_moy",    new RpnSimpleToken((long) date.tm_mon));
 		rpn.addVariable("time_doy",    new RpnSimpleToken((long) date.tm_yday));
+		rpn.addVariable("time_wom",    new RpnSimpleToken((long) (date.tm_mday + 6 - (date.tm_wday + 6) % 7) / 7));
+		rpn.addVariable("time_woy",    new RpnSimpleToken((long) (date.tm_yday + 7 - (date.tm_wday + 6) % 7) / 7));
 		rpn.addVariable("time_year",   new RpnSimpleToken((long) date.tm_year + 1900));
 		rpn.addVariable("time_is_dst", new RpnSimpleToken((long) date.tm_isdst));
 	}
