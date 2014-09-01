@@ -26,12 +26,9 @@ add_executable(rpncron
 	src/os/environment.cpp
 	src/os/logs.cpp
 	src/os/mail.cpp
+	src/run/run_rpncron.cpp
 	src/run/run.cpp
 	src/run/run_debug.cpp
-	src/run/run_list.cpp
-	src/run/run_remove.cpp
-	src/run/run_edit.cpp
-	src/utils/strings.cpp
 	src/utils/vixie_cron.cpp
 )
 
@@ -55,11 +52,8 @@ add_executable(rpncrontab
 	src/args/args_doc_rct.cpp
 	src/os/users.cpp
 	src/os/file.cpp
-	src/os/directory.cpp
 	src/os/processes.cpp
 	src/os/environment.cpp
-	src/os/logs.cpp
-	src/os/mail.cpp
 	src/run/run.cpp
 	src/run/run_debug.cpp
 	src/run/run_list.cpp
