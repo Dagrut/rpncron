@@ -32,6 +32,7 @@ add_executable(rpncron
 	src/run/run_remove.cpp
 	src/run/run_edit.cpp
 	src/utils/strings.cpp
+	src/utils/vixie_cron.cpp
 )
 
 target_link_libraries(rpncron m)
@@ -64,6 +65,7 @@ add_executable(rpncrontab
 	src/run/run_list.cpp
 	src/run/run_remove.cpp
 	src/run/run_edit.cpp
+	src/utils/vixie_cron.cpp
 )
 
 target_link_libraries(rpncron m)

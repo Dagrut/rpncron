@@ -41,6 +41,10 @@ Variables :
 	proc_count
 	exec_count
 
++Later:
+	time_woy
+	time_wom
+
 Functions:
 	+ - * / %
 	== === != < > <= >=
@@ -49,10 +53,11 @@ Functions:
 	int() float() string() bool() !! void()
 	swap() pop(head) pop(tail) rotate(push) rotate(pop) reverse() clear()
 	if() ifelse() switch()
-	eval()
+	eval() eval(vixie)
 	= set()
 	min2sec() hour2sec() day2sec() week2sec() year2sec()
 	sec2min() sec2hour() sec2day() sec2week() sec2year()
+	
 
 +Later:
 	sin() cos() tan() asin() acos() atan()
@@ -62,6 +67,8 @@ Functions:
 	set_time() reset_time()
 	
 	max_proc(soft) max_proc(hard)
+	
+	each(offset)
 
 ##########################
 # And here is an example #

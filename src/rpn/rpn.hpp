@@ -117,7 +117,7 @@ namespace RC {
 				
 				buffer.reserve(256);
 				
-				if(lquotes.size() < 1 || lquotes.size() != rquotes.size())
+				if(lquotes.size() != rquotes.size())
 					return(-1);
 				
 				is_quoted = false;

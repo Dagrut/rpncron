@@ -29,6 +29,7 @@ namespace RC {
 		
 		void fnEval(Rpn<RpnSimpleToken> *rpn, const std::string &key);
 		void fnSet(Rpn<RpnSimpleToken> *rpn, const std::string &key);
+		void fnEvalVixie(Rpn<RpnSimpleToken> *rpn, const std::string &key);
 	}
 }
 

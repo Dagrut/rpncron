@@ -21,6 +21,19 @@
 
 #include <exception>
 
+#ifdef RPNCRON_RPN_FUNCTIONS_INCLUDE_ALL
+#undef RPNCRON_RPN_FUNCTIONS_INCLUDE_ALL
+#include "src/rpn/functions/rpn_functions_arith_elem.hpp"
+#include "src/rpn/functions/rpn_functions_branching.hpp"
+#include "src/rpn/functions/rpn_functions_comp.hpp"
+#include "src/rpn/functions/rpn_functions.hpp"
+#include "src/rpn/functions/rpn_functions_logic.hpp"
+#include "src/rpn/functions/rpn_functions_misc.hpp"
+#include "src/rpn/functions/rpn_functions_queue.hpp"
+#include "src/rpn/functions/rpn_functions_time.hpp"
+#include "src/rpn/functions/rpn_functions_types.hpp"
+#endif
+
 namespace RC {
 	namespace RpnFunctions {
 		class UnderflowError : public std::exception {

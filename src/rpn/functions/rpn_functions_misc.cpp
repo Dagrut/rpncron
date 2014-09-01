@@ -18,17 +18,20 @@
 
 #include "rpn_functions_misc.hpp"
 
+#include "../../utils/vixie_cron.hpp"
+
 #define THROW_UNDERFLOW() \
 	throw RpnFunctions::UnderflowError(std::string("Not enough values to process function ") + __PRETTY_FUNCTION__);
 
-#define THROW_DOMAIN() \
-	throw RpnFunctions::DomainError(std::string("Invalid variables type when calling function ") + __PRETTY_FUNCTION__);
+#define THROW_SYNTAX() \
+	throw RpnFunctions::DomainError(std::string("Syntax error when calling ") + __PRETTY_FUNCTION__);
 
 namespace RC {
 	void RpnFunctionsMisc::load(Rpn<RpnSimpleToken> &rpn) {
-		rpn.addFunction("eval()", fnEval);
-		rpn.addFunction("set()",  fnSet);
-		rpn.addFunction("=",      fnSet);
+		rpn.addFunction("eval()",       fnEval);
+		rpn.addFunction("set()",        fnSet);
+		rpn.addFunction("=",            fnSet);
+		rpn.addFunction("eval(vixie)",   fnEvalVixie);
 	}
 	
 	void RpnFunctionsMisc::fnEval(Rpn<RpnSimpleToken> *rpn, const std::string &key) {
@@ -67,5 +70,42 @@ namespace RC {
 		
 		rpn->addVariable(name->parseAsString(), value);
 		delete name;
+	}
+	
+	void RpnFunctionsMisc::fnEvalVixie(Rpn<RpnSimpleToken> *rpn, const std::string &key) {
+		RpnSimpleToken *expr;
+		Utils::VixieCron::Entry entry;
+		long minute;
+		long hour;
+		long month;
+		long month_day;
+		long week_day;
+		
+		if(rpn->queue.size() < 1)
+			THROW_UNDERFLOW()
+		
+		expr = rpn->queue.front();
+		
+		if(entry.parseString(expr->parseAsString()) == false)
+			THROW_SYNTAX()
+		
+		minute = rpn->variables.find("time_MoH")->second->parseAsInt();
+		hour = rpn->variables.find("time_Hod")->second->parseAsInt();
+		month = rpn->variables.find("time_moy")->second->parseAsInt();
+		month_day = rpn->variables.find("time_dom")->second->parseAsInt();
+		week_day = rpn->variables.find("time_dow")->second->parseAsInt();
+		
+		if(
+			entry.minutes[minute] &&
+			entry.hours[hour] &&
+			entry.months[month] &&
+			entry.doms[month_day] &&
+			entry.dows[week_day]
+		) {
+			expr->reset(1L);
+		}
+		else {
+			expr->reset(0L);
+		}
 	}
 }

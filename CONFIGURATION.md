@@ -190,6 +190,11 @@ This part also contains functions. Here is a list of available functions :
     the number of remaining elements is taken.
 - **eval()** Evaluates the given RPN expression. Beware that it will use the
   same queue, so operations like `clear()` will clear the current queue.
+- **eval(vixie)** Evaluates the generic cron syntax (The one written by Paul
+  Vixie). For example, `"*/2 * * * *"` would be executed each two minutes. 
+  It can also have syntaxes like `*/5,2-4,14` in it, but it does not support 
+  reading month/week days names as in Vixie's cron. It returns a boolean (1 
+  or 0) and can since work only in **bool** mode.
 - **= set()** Variables operations. They both set a variable with the name 
   taken from the first queue element and the value from the second queue 
   element. Note that any value can be used as a variable name, so that writing
