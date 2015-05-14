@@ -16,21 +16,20 @@
  * along with rpncron.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "run_list.hpp"
+#include "run_print.hpp"
 #include "../os/users.hpp"
 #include "../os/file.hpp"
-#include "../os/dir_crawler.hpp"
 #include "../rpncron.hpp"
 
 #include <cstdio>
 #include <fstream>
 
 namespace RC {
-	namespace RunList {
-		void runList(ArgsRct &args) {
+	namespace RunPrint {
+		void runPrint(ArgsRct &args) {
+			std::ifstream ifs;
 			std::string path;
-			OS::DirCrawler crawler;
-			OS::DirCrawler::FileInfo file_info;
+			char tmp;
 			std::string user = args.getUser();
 			
 			try {
@@ -41,25 +40,27 @@ namespace RC {
 				return;
 			}
 			
-			path = std::string(RPNCRON_PROGRAM_USERS_PATH) + '/' + user;
+			path = std::string(RPNCRON_PROGRAM_USERS_PATH) + '/' + user + '/' + args.getRctFile();
 			OS::File file(path);
-			if(!file.isDirectory()) {
+			if(!file.isFile()) {
 				printf("No rpncrontab found for user '%s'\n", user.c_str());
 				return;
 			}
 			
-			if(!crawler.open(path)) {
-				printf("The rpncrontab directory of '%s' could not be opened\n", user.c_str());
+			ifs.open(path.c_str());
+			if(!ifs.is_open()) {
+				printf("Could not open rpncrontab file for user '%s'\n", user.c_str());
 				return;
 			}
 			
-			while(crawler.next(file_info)) {
-				if(file_info.error || file_info.file.isDirectory())
-					continue;
-				printf("%s\n", file_info.path.substr(path.size() + 1).c_str());
+			while(ifs.get(tmp)) {
+				printf("%c", tmp);
 			}
 			
-			crawler.close();
+			if(!ifs.eof()) {
+				printf("\n\nAn error was encountered while reading '%s'\n", user.c_str());
+				return;
+			}
 		}
 	}
 }

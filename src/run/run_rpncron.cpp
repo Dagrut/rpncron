@@ -263,6 +263,24 @@ namespace RC {
 			catch(OS::SystemError &e) {
 				FATAL("Could not daemonize : %s\n", e.what());
 			}
+			
+			try {
+				if(this->args.getPidPath().size() > 0) {
+					OS::File::putContent(
+						this->args.getPidPath(),
+						Utils::format("%d", (int) OS::Processes::getPid())
+					);
+				}
+			}
+			catch(OS::SystemError &e) {
+				OS::Logs::log(
+					OS::Logs::LVL_CRIT,
+					"Error writing pid (%d) into file %s : %s",
+					(int) OS::Processes::getPid(),
+					this->args.getPidPath().c_str(),
+					e.what()
+				);
+			}
 		}
 	}
 	
@@ -537,7 +555,7 @@ namespace RC {
 			return;
 		
 		if(t->ce.conf.exec_err_action & Conf::CONF_ON_ERROR_LOG) {
-			Logs::log(Logs::LVL_WARN, "Error when executing task %d of %s : %s",
+			OS::Logs::log(OS::Logs::LVL_WARN, "Error when executing task %d of %s : %s",
 				t->task_id,
 				t->identifier.c_str(),
 				err
@@ -590,14 +608,14 @@ namespace RC {
 			!(t->ce.conf.code_err_action & Conf::CONF_ON_ERROR_IGNORE);
 		
 		if(is_retcode) {
-			Logs::log(Logs::LVL_WARN, "Task %d of %s failed with returned code %d",
+			OS::Logs::log(OS::Logs::LVL_WARN, "Task %d of %s failed with returned code %d",
 				t->task_id,
 				t->identifier.c_str(),
 				return_code
 			);	
 		}
 		else if(is_output) {
-			Logs::log(Logs::LVL_WARN, "Task %d of %s printed an output of %d bytes",
+			OS::Logs::log(OS::Logs::LVL_WARN, "Task %d of %s printed an output of %d bytes",
 				t->task_id,
 				t->identifier.c_str(),
 				output.size()

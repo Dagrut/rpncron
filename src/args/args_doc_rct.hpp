@@ -25,22 +25,10 @@ namespace RC {
 	namespace ArgsDocRct {
 		void showAllDocumentation(ArgsRct &current);
 		
-		#define CALLBACK(name) \
-			void name ## Doc(ArgsRct &current);
+		#define ITEM(exec_callback, argcnt, ...) \
+			void exec_callback ## Doc(ArgsRct &current);
 		
-		CALLBACK(onRun)
-		CALLBACK(onRunFile)
-		CALLBACK(onRunDir)
-		CALLBACK(onDebugFile)
-		CALLBACK(onVerbose)
-		CALLBACK(onQuiet)
-		CALLBACK(onEdit)
-		CALLBACK(onList)
-		CALLBACK(onUser)
-		CALLBACK(onRemove)
-		CALLBACK(onHelp)
-		
-		#undef CALLBACK
+		#include "args_rct.itm"
 	};
 }
 

@@ -2,33 +2,14 @@
 #define ITEM(name, argcnt, exec_callback)
 #endif
 
-ITEM("-d",                      0, onDaemon)
-ITEM("--daemon",                0, onDaemon)
-
-ITEM("-r",                      0, onRun)
-ITEM("-run",                    0, onRun)
-ITEM("--run",                   0, onRun)
-
-ITEM("-rf",                     1, onRunFile)
-ITEM("--run-file",              1, onRunFile)
-
-ITEM("-rd",                     1, onRunDir)
-ITEM("--run-dir",               1, onRunDir)
-
-ITEM("-df2",                    2, onDebugFile)
-ITEM("--debug-file-2",          2, onDebugFile)
-
-ITEM("-v",                      0, onVerbose)
-ITEM("--verbose",               0, onVerbose)
-
-ITEM("-q",                      0, onQuiet)
-ITEM("--quiet",                 0, onQuiet)
-
-ITEM("-u",                      1, onUser)
-ITEM("--user",                  1, onUser)
-
-ITEM("-h",                      0, onHelp)
-ITEM("-help",                   0, onHelp)
-ITEM("--help",                  0, onHelp)
+ITEM(onDaemon,    0, "d", "daemon", "daemonize")
+ITEM(onRun,       0, "r", "run")
+ITEM(onRunFile,   1, "rf", "run-file", "runfile")
+ITEM(onRunDir,    1, "rd", "run-dir", "rundir")
+ITEM(onPidFile,   1, "pf", "pid", "pidfile", "pid-file")
+ITEM(onDebugFile, 2, "df", "df2", "debugfile", "debug-file")
+ITEM(onVerbosity, 1, "v", "verb", "verbosity")
+ITEM(onUser,      1, "as", "user")
+ITEM(onHelp,      0, "help", "-h", "-?", "-help", "--help")
 
 #undef ITEM

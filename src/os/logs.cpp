@@ -23,67 +23,69 @@
 #include <syslog.h>
 
 namespace RC {
-	Logs *Logs::self = NULL;
-	
-	Logs::Logs() : 
-		verbosity(Logs::LVL_INFO),
-		log_dest(Logs::LOG_TO_SYSLOG)
-	{
-		openlog(NULL, LOG_CONS | LOG_PID, LOG_CRON);
-	}
-	
-	Logs::~Logs() {
-		closelog();
-	}
-	
-	Logs *Logs::singleton() {
-		if(Logs::self == NULL) {
-			Logs::self = new Logs();
+	namespace OS {
+		Logs *Logs::self = NULL;
+		
+		Logs::Logs() : 
+			verbosity(Logs::LVL_INFO),
+			log_dest(Logs::LOG_TO_SYSLOG)
+		{
+			openlog(NULL, LOG_CONS | LOG_PID, LOG_CRON);
 		}
-		return(Logs::self);
-	}
-	
-	void Logs::setVerbosity(int verbosity) {
-		Logs::singleton()->verbosity = verbosity;
-	}
-	
-	int Logs::getVerbosity() {
-		return(Logs::singleton()->verbosity);
-	}
-	
-	void Logs::log(int lvl, const std::string &log_str) {
-		Logs *self = Logs::singleton();
-		if(lvl >= self->verbosity)
-			return;
 		
-		if(self->log_dest == Logs::LOG_TO_FILE) {
-			printf("FIXME %s:%d\n", __FILE__, __LINE__);
+		Logs::~Logs() {
+			closelog();
 		}
-		else if(self->log_dest == Logs::LOG_TO_SYSLOG) {
-			if(lvl == 0)
-				lvl = LOG_ERR;
-			else if(lvl == 1)
-				lvl = LOG_WARNING;
-			else
-				lvl = LOG_NOTICE;
-			syslog(lvl, "%s", log_str.c_str());
+		
+		Logs *Logs::singleton() {
+			if(Logs::self == NULL) {
+				Logs::self = new Logs();
+			}
+			return(Logs::self);
 		}
-		else if(self->log_dest == Logs::LOG_TO_REMOTE_SYSLOG) {
-			printf("FIXME %s:%d\n", __FILE__, __LINE__);
+		
+		void Logs::setVerbosity(int verbosity) {
+			Logs::singleton()->verbosity = verbosity;
 		}
-	}
-	
-	void Logs::log(int lvl, const char *fmt, ...) {
-		char buffer[RPNCRON_LOGS_LOGGER_BUFFER_SIZE];
-		va_list valist;
 		
-		if(lvl >= Logs::singleton()->verbosity)
-			return;
+		int Logs::getVerbosity() {
+			return(Logs::singleton()->verbosity);
+		}
 		
-		va_start(valist, fmt);
+		void Logs::log(int lvl, const std::string &log_str) {
+			Logs *self = Logs::singleton();
+			if(lvl >= self->verbosity)
+				return;
+			
+			if(self->log_dest == Logs::LOG_TO_FILE) {
+				printf("FIXME %s:%d\n", __FILE__, __LINE__);
+			}
+			else if(self->log_dest == Logs::LOG_TO_SYSLOG) {
+				if(lvl == 0)
+					lvl = LOG_ERR;
+				else if(lvl == 1)
+					lvl = LOG_WARNING;
+				else
+					lvl = LOG_NOTICE;
+				syslog(lvl, "%s", log_str.c_str());
+			}
+			else if(self->log_dest == Logs::LOG_TO_REMOTE_SYSLOG) {
+				printf("FIXME %s:%d\n", __FILE__, __LINE__);
+			}
+		}
 		
-		vsnprintf(buffer, sizeof(buffer), fmt, valist);
-		
-		Logs::log(lvl, std::string(buffer));
+		void Logs::log(int lvl, const char *fmt, ...) {
+			char buffer[RPNCRON_LOGS_LOGGER_BUFFER_SIZE];
+			va_list valist;
+			
+			if(lvl >= Logs::singleton()->verbosity)
+				return;
+			
+			va_start(valist, fmt);
+			
+			vsnprintf(buffer, sizeof(buffer), fmt, valist);
+			
+			Logs::log(lvl, std::string(buffer));
+		}
 	}
 }

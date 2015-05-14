@@ -44,12 +44,10 @@ namespace RC {
 			else {
 				it = this->args.find(argv[i]);
 				if(it != this->args.end()) {
-					if(it->second.args_count == 0) {
+					if(it->second.args_count == 0)
 						it->second.event(this, it->first, current_args);
-					}
-					else {
+					else
 						remaining_args = it->second.args_count;
-					}
 				}
 				else {
 					unknown_args.push_back(i);
@@ -65,16 +63,24 @@ namespace RC {
 	}
 	
 	void ArgsParser::addOption(
-		const std::string &name,
 		OptionEvent event,
-		int args_count
+		int args_count,
+		...
 	) {
 		ArgOpts opts;
+		va_list args;
+		const char *name;
 		
 		opts.event = event;
 		opts.args_count = args_count;
 		
-		this->args.insert(std::make_pair(name, opts));
+		va_start(args, args_count);
+		
+		while((name = va_arg(args, const char*)) != NULL) {
+			this->args.insert(std::make_pair(std::string(name), opts));
+		}
+		
+		va_end(args);
 	}
 	
 	void ArgsParser::delOption(const std::string &name) {

@@ -18,8 +18,11 @@
 
 #include "file.hpp"
 
+#include <vector>
+
 #include <unistd.h>
 #include <cstdio>
+#include <cstdlib>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -87,6 +90,29 @@ namespace RC {
 		}
 		
 		return(tmp);
+	}
+	
+	FILE* OS::File::tmpFile(std::string &name, const std::string &tpl) {
+		FILE *ret;
+		int fd;
+		std::vector<char> namebuff(tpl.begin(), tpl.end());
+		for(int i = 0 ; i < 6 ; i++)
+			namebuff.push_back('X');
+		namebuff.push_back('\0');
+		
+		fd = mkstemp(&namebuff[0]);
+		if(fd < 0) {
+			throw SystemError("Could not find an unused temporary file name");
+		}
+		
+		ret = fdopen(fd, "a");
+		if(ret == NULL) {
+			throw SystemError("Error when calling fdopen() on a valid fd");
+		}
+		
+		name = namebuff.data();
+		
+		return(ret);
 	}
 	
 	void OS::File::dupToTmpFile(const std::string &src, std::string &dst) {
@@ -217,6 +243,35 @@ namespace RC {
 		
 		STOP()
 		#undef STOP
+	}
+	
+	void OS::File::putContent(
+		const std::string &fname,
+		const std::string &data
+	) {
+		int fd;
+		int ret;
+		const char *ptr = data.c_str();
+		int left = data.size();
+		
+		fd = ::open(fname.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		if(fd == -1) {
+			throw SystemError(std::string("Could not open file '") + fname + "'");
+		}
+		
+		if(left > 0) {
+			while((ret = write(fd, ptr, left)) >= 0) {
+				ptr += ret;
+				left -= ret;
+				if(left == 0)
+					break;
+			}
+		}
+		if(ret < 0) {
+			throw SystemError(std::string("Error writing data to '") + fname + "'");
+		}
+		
+		::close(fd);
 	}
 	
 	void OS::File::move(const std::string &src, const std::string &dst) {

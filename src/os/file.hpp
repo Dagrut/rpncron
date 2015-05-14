@@ -42,6 +42,10 @@ namespace RC {
 				
 				static bool remove(const std::string &path);
 				static std::string tmpFileName();
+				static FILE* tmpFile(
+					std::string &name,
+					const std::string &tpl = "/tmp/rpncron-tmpfile"
+				);
 				static void dupToTmpFile(const std::string &src, std::string &dst);
 				static bool mkdir(
 					const std::string &path,
@@ -53,6 +57,10 @@ namespace RC {
 					const std::string &dst,
 					bool force = false,
 					bool no_dst = false
+				);
+				static void putContent(
+					const std::string &fname,
+					const std::string &data
 				);
 				static void move(const std::string &src, const std::string &dst);
 				

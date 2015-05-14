@@ -23,6 +23,10 @@
 #include <cstdio>
 
 namespace RC {
+	namespace ArgsDocRc {
+		static void printOptions(const char *first, ...);
+	}
+	
 	void ArgsDocRc::showAllDocumentation(ArgsRc &current) {
 		printf("%s",
 "Rpncron, version " RPNCRON_PROGRAM_VERSION "\n"
@@ -35,28 +39,34 @@ namespace RC {
 "\n"
 );
 		
-		#define CALL(name) \
-			name ## Doc(current);
+		#define ITEM(exec_callback, argcnt, ...) \
+			printOptions(__VA_ARGS__, NULL); \
+			printf("\tThis option takes %d arguments\n", argcnt); \
+			exec_callback ## Doc(current);
 		
-		CALL(onDaemon)
-		CALL(onRun)
-		CALL(onRunFile)
-		CALL(onRunDir)
-		CALL(onDebugFile)
-		CALL(onVerbose)
-		CALL(onQuiet)
-		CALL(onUser)
-		CALL(onHelp)
+		#include "args_rc.itm"
+	}
+	
+	static void ArgsDocRc::printOptions(const char *first, ...) {
+		const char *next;
+		va_list args;
 		
-		#undef CALL
+		printf("%s", first);
+		
+		va_start(args, first);
+		while((next = va_arg(args, const char*)) != NULL) {
+			printf(" | %s", next);
+		}
+		va_end(args);
+		
+		printf("\n");
 	}
 	
 	void ArgsDocRc::onDaemonDoc(ArgsRc &current) {
 		printf(
-"-d --daemon\n"
-"Default=%s, Current=%s\n"
-"Toggles the daemonize flag to go to background when starting the process with \n"
-"the --run option.\n\n",
+"\tDefault=%s, Current=%s\n"
+"\tToggles the daemonize flag to go to background when starting the process with \n"
+"\tthe --run option.\n\n",
 			ArgsRc::getDefaultDaemonize() ? "yes" : "no",
 			current.getDaemonize() ? "yes" : "no"
 		);
@@ -64,9 +74,8 @@ namespace RC {
 	
 	void ArgsDocRc::onRunDoc(ArgsRc &current) {
 		printf(
-"-r -run --run\n"
-"Default=%s, Current=%s\n"
-"Starts the rpncron program.\n\n",
+"\tDefault=%s, Current=%s\n"
+"\tStarts the rpncron program.\n\n",
 			ArgsRc::getDefaultAction() == ArgsRc::ACTION_RUN ? "yes" : "no",
 			current.getAction() == ArgsRc::ACTION_RUN ? "yes" : "no"
 		);
@@ -74,9 +83,8 @@ namespace RC {
 	
 	void ArgsDocRc::onRunFileDoc(ArgsRc &current) {
 		printf(
-"-rf --run-file <File>\n"
-"Default=(%s, '%s'), Current=(%s, '%s')\n"
-"Run rpncron only on the given file.\n\n",
+"\tDefault=(%s, '%s'), Current=(%s, '%s')\n"
+"\tRun rpncron only on the given file. It cannot be used with -rd.\n\n",
 			ArgsRc::getDefaultAction() == ArgsRc::ACTION_RUN_FILE ? "yes" : "no",
 			ArgsRc::getDefaultRunPath().c_str(),
 			current.getAction() == ArgsRc::ACTION_RUN_FILE ? "yes" : "no",
@@ -86,9 +94,9 @@ namespace RC {
 	
 	void ArgsDocRc::onRunDirDoc(ArgsRc &current) {
 		printf(
-"-rd --run-dir <Directory>\n"
-"Default=(%s, '%s'), Current=(%s, '%s')\n"
-"Run rpncron only on the files in the given directory.\n\n",
+"\tDefault=(%s, '%s'), Current=(%s, '%s')\n"
+"\tRun rpncron only on the files in the given directory. It cannot be used with "
+"\t-rf.\n\n",
 			ArgsRc::getDefaultAction() == ArgsRc::ACTION_RUN_DIR ? "yes" : "no",
 			ArgsRc::getDefaultRunPath().c_str(),
 			current.getAction() == ArgsRc::ACTION_RUN_DIR ? "yes" : "no",
@@ -96,13 +104,22 @@ namespace RC {
 		);
 	}
 	
+	void ArgsDocRc::onPidFileDoc(ArgsRc &current) {
+		printf(
+"\tDefault='%s', Current='%s'\n"
+"\tWrite the PID of the started process into the given file, if one is given.\n"
+"\tThe file will only be written with -d.\n\n",
+			ArgsRc::getDefaultPidPath().c_str(),
+			current.getPidPath().c_str()
+		);
+	}
+	
 	void ArgsDocRc::onDebugFileDoc(ArgsRc &current) {
 		printf(
-"-df2 --debug-file-2 <Filename> <Timestamp>\n"
-"Default=(%s, '%s', %lu), Current=(%s, '%s', %lu)\n"
-"Run the given script in debug mode (display exactly what is being done and \n"
-"what will be executed). If the timestamp is equal to 'now', the current \n"
-"timestamp is taken.\n\n",
+"\tDefault=(%s, '%s', %lu), Current=(%s, '%s', %lu)\n"
+"\tRun the given script in debug mode (display exactly what is being done and \n"
+"\twhat will be executed). If the timestamp is equal to 'now', the current \n"
+"\ttimestamp is taken.\n\n",
 			ArgsRc::getDefaultAction() == ArgsRc::ACTION_DEBUG_FILE ? "yes" : "no",
 			ArgsRc::getDefaultDebugFile().c_str(),
 			(unsigned long) ArgsRc::getDefaultDebugStart(),
@@ -112,22 +129,10 @@ namespace RC {
 		);
 	}
 	
-	void ArgsDocRc::onVerboseDoc(ArgsRc &current) {
+	void ArgsDocRc::onVerbosityDoc(ArgsRc &current) {
 		printf(
-"-v --verbose\n"
-"Default=%d, Current=%d\n"
-"Increase the verbosity by 1. The maximum value is 3.\n\n",
-			ArgsRc::getDefaultVerbosity(),
-			current.getVerbosity()
-		);
-	}
-	
-	void ArgsDocRc::onQuietDoc(ArgsRc &current) {
-		printf(
-"-q --quiet\n"
-"Default=%d, Current=%d\n"
-"Decrease the verbosity by 1. The minimum value is 0, and it means no output at \n"
-"all.\n\n",
+"\tDefault=%d, Current=%d\n"
+"\tSet the wanted verbosity, between 0 and 3.\n\n",
 			ArgsRc::getDefaultVerbosity(),
 			current.getVerbosity()
 		);
@@ -135,9 +140,8 @@ namespace RC {
 	
 	void ArgsDocRc::onUserDoc(ArgsRc &current) {
 		printf(
-"-u --user <Username>\n"
-"Default='%s', Current='%s'\n"
-"Set the user name that will be used for the -e and -l options.\n\n",
+"\tDefault='%s', Current='%s'\n"
+"\tSet the user name that will be used for the -e and -l options.\n\n",
 			ArgsRc::getDefaultUser().c_str(),
 			current.getUser().c_str()
 		);
@@ -145,9 +149,8 @@ namespace RC {
 	
 	void ArgsDocRc::onHelpDoc(ArgsRc &current) {
 		printf(
-"-h -help --help\n"
-"Default=%s, Current=%s\n"
-"Display this help text.\n\n",
+"\tDefault=%s, Current=%s\n"
+"\tDisplay this help text.\n\n",
 			ArgsRc::getDefaultAction() == ArgsRc::ACTION_HELP ? "yes" : "no",
 			current.getAction() == ArgsRc::ACTION_HELP ? "yes" : "no"
 		);

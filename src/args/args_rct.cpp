@@ -31,18 +31,14 @@ namespace RC {
 		action(ArgsRct::getDefaultAction()),
 		daemonize(ArgsRct::getDefaultDaemonize()),
 		verbosity(ArgsRct::getDefaultVerbosity()),
-		user(ArgsRct::getDefaultUser()),
-		debug_file(ArgsRct::getDefaultDebugFile()),
-		debug_start(ArgsRct::getDefaultDebugStart())
+		user(ArgsRct::getDefaultUser())
 	{}
 	
 	ArgsRct::ConfAction ArgsRct::getDefaultAction() {  return(ArgsRct::ACTION_HELP); }
 	bool ArgsRct::getDefaultDaemonize() {           return(false); }
 	int ArgsRct::getDefaultVerbosity() {            return(1); }
 	std::string ArgsRct::getDefaultUser() {         return(OS::Users::getCurrentUserName()); }
-	std::string ArgsRct::getDefaultDebugFile() {    return(""); }
 	std::string ArgsRct::getDefaultRunPath() {      return(""); }
-	time_t ArgsRct::getDefaultDebugStart() {        return(time(NULL)); }
 	
 	void ArgsRct::parse(int argc, char **argv) {
 		ArgsParser parser;
@@ -50,11 +46,12 @@ namespace RC {
 		
 		parser.setData(this);
 		
-		#define ITEM(name, argcnt, exec_callback) \
+		#define ITEM(exec_callback, argcnt, ...) \
 			parser.addOption( \
-				name, \
 				exec_callback, \
-				argcnt \
+				argcnt, \
+				__VA_ARGS__, \
+				NULL \
 			);
 		
 		#include "args_rct.itm"
@@ -62,24 +59,17 @@ namespace RC {
 		parser.parse(argc, argv, unknown_args);
 	}
 	
-	void ArgsRct::onVerbose(
+	void ArgsRct::onVerbosity(
 		ArgsParser *parser,
 		const std::string &key,
 		const std::vector<std::string> &values
 	) {
 		ArgsRct *args = parser->getData<ArgsRct>();
-		if(args->verbosity < 3)
-			args->verbosity++;
-	}
-	
-	void ArgsRct::onQuiet(
-		ArgsParser *parser,
-		const std::string &key,
-		const std::vector<std::string> &values
-	) {
-		ArgsRct *args = parser->getData<ArgsRct>();
-		if(args->verbosity > 0)
-			args->verbosity--;
+		args->verbosity = atoi(values[0].c_str());
+		if(args->verbosity < 0)
+			args->verbosity = 0;
+		else if(args->verbosity > 3)
+			args->verbosity = 3;
 	}
 	
 	void ArgsRct::onEdit(
@@ -89,6 +79,7 @@ namespace RC {
 	) {
 		ArgsRct *args = parser->getData<ArgsRct>();
 		args->action = ACTION_EDIT;
+		args->rct_file = values[0];
 	}
 	
 	void ArgsRct::onList(
@@ -98,6 +89,16 @@ namespace RC {
 	) {
 		ArgsRct *args = parser->getData<ArgsRct>();
 		args->action = ACTION_LIST;
+	}
+	
+	void ArgsRct::onPrint(
+		ArgsParser *parser,
+		const std::string &key,
+		const std::vector<std::string> &values
+	) {
+		ArgsRct *args = parser->getData<ArgsRct>();
+		args->action = ACTION_PRINT;
+		args->rct_file = values[0];
 	}
 	
 	void ArgsRct::onUser(
@@ -116,6 +117,7 @@ namespace RC {
 	) {
 		ArgsRct *args = parser->getData<ArgsRct>();
 		args->action = ACTION_REMOVE;
+		args->rct_file = values[0];
 	}
 	
 	void ArgsRct::onHelp(

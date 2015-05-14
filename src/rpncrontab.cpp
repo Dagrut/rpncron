@@ -18,9 +18,9 @@
 
 #include "args/args_rct.hpp"
 #include "args/args_doc_rct.hpp"
-#include "run/run_debug.hpp"
 #include "run/run_list.hpp"
 #include "run/run_remove.hpp"
+#include "run/run_print.hpp"
 #include "run/run_edit.hpp"
 #include "run/run.hpp"
 
@@ -38,6 +38,9 @@ int main(int argc, char **argv) {
 			break;
 		case RC::ArgsRct::ACTION_EDIT:
 			RC::RunEdit::runEdit(args);
+			break;
+		case RC::ArgsRct::ACTION_PRINT:
+			RC::RunPrint::runPrint(args);
 			break;
 		case RC::ArgsRct::ACTION_LIST:
 			RC::RunList::runList(args);

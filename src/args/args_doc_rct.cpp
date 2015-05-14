@@ -20,9 +20,15 @@
 #include "args_rc.hpp"
 #include "../rpncron.hpp"
 
+#include <stdarg.h>
+
 #include <cstdio>
 
 namespace RC {
+	namespace ArgsDocRct {
+		static void printOptions(const char *first, ...);
+	}
+	
 	void ArgsDocRct::showAllDocumentation(ArgsRct &current) {
 		printf("%s",
 "Rpncron, version " RPNCRON_PROGRAM_VERSION "\n"
@@ -35,36 +41,33 @@ namespace RC {
 "\n"
 );
 		
-		#define CALL(name) \
-			name ## Doc(current);
+		#define ITEM(exec_callback, argcnt, ...) \
+			printOptions(__VA_ARGS__, NULL); \
+			printf("\tThis option takes %d arguments\n", argcnt); \
+			exec_callback ## Doc(current);
 		
-		CALL(onVerbose)
-		CALL(onQuiet)
-		CALL(onEdit)
-		CALL(onList)
-		CALL(onUser)
-		CALL(onRemove)
-		CALL(onHelp)
-		
-		#undef CALL
+		#include "args_rct.itm"
 	}
 	
-	void ArgsDocRct::onVerboseDoc(ArgsRct &current) {
-		printf(
-"-v --verbose\n"
-"Default=%d, Current=%d\n"
-"Increase the verbosity by 1. The maximum value is 3.\n\n",
-			ArgsRct::getDefaultVerbosity(),
-			current.getVerbosity()
-		);
+	static void ArgsDocRct::printOptions(const char *first, ...) {
+		const char *next;
+		va_list args;
+		
+		printf("%s", first);
+		
+		va_start(args, first);
+		while((next = va_arg(args, const char*)) != NULL) {
+			printf(" | %s", next);
+		}
+		va_end(args);
+		
+		printf("\n");
 	}
 	
-	void ArgsDocRct::onQuietDoc(ArgsRct &current) {
+	void ArgsDocRct::onVerbosityDoc(ArgsRct &current) {
 		printf(
-"-q --quiet\n"
-"Default=%d, Current=%d\n"
-"Decrease the verbosity by 1. The minimum value is 0, and it means no output at \n"
-"all.\n\n",
+"\tDefault=%d, Current=%d\n"
+"\tSet the wanted verbosity, between 0 and 3.\n\n",
 			ArgsRct::getDefaultVerbosity(),
 			current.getVerbosity()
 		);
@@ -72,29 +75,37 @@ namespace RC {
 	
 	void ArgsDocRct::onEditDoc(ArgsRct &current) {
 		printf(
-"-e --edit\n"
-"Default=%s, Current=%s\n"
-"Edit the rpncron file of the user given by -u.\n\n",
+"\tDefault=%s, File=%s, Current=%s\n"
+"\tEdit the given rpncron file in the user directory of the one given by -u.\n\n",
 			ArgsRct::getDefaultAction() == ArgsRct::ACTION_EDIT ? "yes" : "no",
+			ArgsRct::getDefaultAction() == ArgsRct::ACTION_EDIT ? current.getRctFile().c_str() : "",
 			current.getAction() == ArgsRct::ACTION_EDIT ? "yes" : "no"
 		);
 	}
 	
 	void ArgsDocRct::onListDoc(ArgsRct &current) {
 		printf(
-"-l --list\n"
-"Default=%s, Current=%s\n"
-"Shows the content of the rpncron file for the user given by -u.\n\n",
+"\tDefault=%s, Current=%s\n"
+"\tShows a list of all rpncron files for the user given by -u.\n\n",
 			ArgsRct::getDefaultAction() == ArgsRct::ACTION_LIST ? "yes" : "no",
 			current.getAction() == ArgsRct::ACTION_LIST ? "yes" : "no"
 		);
 	}
 	
+	void ArgsDocRct::onPrintDoc(ArgsRct &current) {
+		printf(
+"\tDefault=%s, File=%s, Current=%s\n"
+"\tPrint the given rpncron file in the user directory of the one given by -u.\n\n",
+			ArgsRct::getDefaultAction() == ArgsRct::ACTION_PRINT ? "yes" : "no",
+			ArgsRct::getDefaultAction() == ArgsRct::ACTION_PRINT ? current.getRctFile().c_str() : "",
+			current.getAction() == ArgsRct::ACTION_PRINT ? "yes" : "no"
+		);
+	}
+	
 	void ArgsDocRct::onUserDoc(ArgsRct &current) {
 		printf(
-"-u --user <Username>\n"
-"Default='%s', Current='%s'\n"
-"Set the user name that will be used for the -e and -l options.\n\n",
+"\tDefault='%s', Current='%s'\n"
+"\tSet the user name that will be used for the edit and list options.\n\n",
 			ArgsRct::getDefaultUser().c_str(),
 			current.getUser().c_str()
 		);
@@ -102,19 +113,18 @@ namespace RC {
 	
 	void ArgsDocRct::onRemoveDoc(ArgsRct &current) {
 		printf(
-"-r --remove\n"
-"Default=%s, Current=%s\n"
-"Remove the rpncron file of the user given by -u.\n\n",
+"\tDefault=%s, File=%s, Current=%s\n"
+"\tRemove the rpncron file of the user given by -u.\n\n",
 			ArgsRct::getDefaultAction() == ArgsRct::ACTION_REMOVE ? "yes" : "no",
+			ArgsRct::getDefaultAction() == ArgsRct::ACTION_REMOVE ? current.getRctFile().c_str() : "",
 			current.getAction() == ArgsRct::ACTION_REMOVE ? "yes" : "no"
 		);
 	}
 	
 	void ArgsDocRct::onHelpDoc(ArgsRct &current) {
 		printf(
-"-h -help --help\n"
-"Default=%s, Current=%s\n"
-"Display this help text.\n\n",
+"\tDefault=%s, Current=%s\n"
+"\tDisplay this help text.\n\n",
 			ArgsRct::getDefaultAction() == ArgsRct::ACTION_HELP ? "yes" : "no",
 			current.getAction() == ArgsRct::ACTION_HELP ? "yes" : "no"
 		);

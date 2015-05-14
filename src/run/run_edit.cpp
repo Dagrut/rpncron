@@ -44,7 +44,7 @@ namespace RC {
 				return;
 			}
 			
-			path = std::string(RPNCRON_PROGRAM_USERS_PATH) + '/' + user;
+			path = std::string(RPNCRON_PROGRAM_USERS_PATH) + '/' + user + '/' + args.getRctFile();
 			OS::File file(path);
 			if(!file.isFile()) {
 				try {

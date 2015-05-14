@@ -26,6 +26,7 @@ add_executable(rpncron
 	src/os/environment.cpp
 	src/os/logs.cpp
 	src/os/mail.cpp
+	src/os/dir_crawler.cpp
 	src/run/run_rpncron.cpp
 	src/run/run.cpp
 	src/run/run_debug.cpp
@@ -36,15 +37,6 @@ target_link_libraries(rpncron m)
 
 add_executable(rpncrontab
 	src/rpncrontab.cpp
-	src/rpn/rpn_simple_token.cpp
-	src/rpn/functions/rpn_functions_arith_elem.cpp
-	src/rpn/functions/rpn_functions_comp.cpp
-	src/rpn/functions/rpn_functions_logic.cpp
-	src/rpn/functions/rpn_functions_types.cpp
-	src/rpn/functions/rpn_functions_queue.cpp
-	src/rpn/functions/rpn_functions_branching.cpp
-	src/rpn/functions/rpn_functions_misc.cpp
-	src/rpn/functions/rpn_functions_time.cpp
 	src/conf/conf_parser.cpp
 	src/conf/conf_callbacks.cpp
 	src/args/args_parser.cpp
@@ -54,12 +46,11 @@ add_executable(rpncrontab
 	src/os/file.cpp
 	src/os/processes.cpp
 	src/os/environment.cpp
-	src/run/run.cpp
-	src/run/run_debug.cpp
+	src/os/dir_crawler.cpp
 	src/run/run_list.cpp
 	src/run/run_remove.cpp
 	src/run/run_edit.cpp
-	src/utils/vixie_cron.cpp
+	src/run/run_print.cpp
 )
 
 target_link_libraries(rpncron m)

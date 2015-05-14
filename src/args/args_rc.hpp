@@ -38,24 +38,14 @@ namespace RC {
 			
 			void parse(int argc, char **argv);
 			
-			#define CALLBACK(name) \
-				static void name( \
+			#define ITEM(exec_callback, argcnt, ...) \
+				static void exec_callback( \
 					ArgsParser *parser, \
 					const std::string &key, \
 					const std::vector<std::string> &values \
 				);
 			
-			CALLBACK(onDaemon)
-			CALLBACK(onRun)
-			CALLBACK(onRunFile)
-			CALLBACK(onRunDir)
-			CALLBACK(onDebugFile)
-			CALLBACK(onVerbose)
-			CALLBACK(onQuiet)
-			CALLBACK(onUser)
-			CALLBACK(onHelp)
-			
-			#undef CALLBACK
+			#include "args_rc.itm"
 			
 			static ConfAction getDefaultAction();
 			static bool getDefaultDaemonize();
@@ -63,6 +53,7 @@ namespace RC {
 			static std::string getDefaultUser();
 			static std::string getDefaultDebugFile();
 			static std::string getDefaultRunPath();
+			static std::string getDefaultPidPath();
 			static time_t getDefaultDebugStart();
 			
 			ConfAction getAction() const { return(this->action); }
@@ -71,6 +62,7 @@ namespace RC {
 			std::string getUser() const { return(this->user); }
 			std::string getDebugFile() const { return(this->debug_file); }
 			std::string getRunPath() const { return(this->run_path); }
+			std::string getPidPath() const { return(this->pid_path); }
 			time_t getDebugStart() const { return(this->debug_start); }
 			
 		private:
@@ -82,6 +74,7 @@ namespace RC {
 			std::string user;
 			
 			std::string run_path;
+			std::string pid_path;
 			
 			std::string debug_file;
 			time_t debug_start;

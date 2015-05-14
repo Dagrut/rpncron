@@ -16,19 +16,14 @@
  * along with rpncron.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HPP_RPNCRON_ARGS_ARGS_DOC_RC_
-#define _HPP_RPNCRON_ARGS_ARGS_DOC_RC_
+#ifndef _HPP_RPNCRON_RUN_PRINT_
+#define _HPP_RPNCRON_RUN_PRINT_
 
-#include "args_rc.hpp"
+#include "../args/args_rct.hpp"
 
 namespace RC {
-	namespace ArgsDocRc {
-		void showAllDocumentation(ArgsRc &current);
-		
-		#define ITEM(exec_callback, argcnt, ...) \
-			void exec_callback ## Doc(ArgsRc &current);
-		
-		#include "args_rc.itm"
+	namespace RunPrint {
+		void runPrint(ArgsRct &args);
 	};
 }
 

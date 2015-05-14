@@ -16,20 +16,43 @@
  * along with rpncron.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HPP_RPNCRON_ARGS_ARGS_DOC_RC_
-#define _HPP_RPNCRON_ARGS_ARGS_DOC_RC_
+#ifndef _HPP_RPNCRON_OS_DIRECTORY_
+#define _HPP_RPNCRON_OS_DIRECTORY_
 
-#include "args_rc.hpp"
+#include "exceptions.hpp"
+#include "file.hpp"
+
+#include <string>
+#include <vector>
+#include <dirent.h>
 
 namespace RC {
-	namespace ArgsDocRc {
-		void showAllDocumentation(ArgsRc &current);
-		
-		#define ITEM(exec_callback, argcnt, ...) \
-			void exec_callback ## Doc(ArgsRc &current);
-		
-		#include "args_rc.itm"
-	};
+	namespace OS {
+		class DirCrawler {
+			public:
+				struct FileInfo {
+					File file;
+					std::string path;
+					bool error;
+				};
+				~DirCrawler();
+				
+				bool open(const std::string &path);
+				void close();
+				bool isOpen();
+				
+				bool isEnd() const;
+				bool next(FileInfo &finfo);
+				
+			private:
+				struct Stack {
+					DIR *dir;
+					std::string path;
+				};
+				std::vector<Stack> dirs;
+				bool end;
+		};
+	}
 }
 
 #endif

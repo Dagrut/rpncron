@@ -23,6 +23,8 @@
 #include <vector>
 #include <map>
 
+#include <stdarg.h>
+
 namespace RC {
 	class ArgsParser {
 		public:
@@ -39,9 +41,9 @@ namespace RC {
 			void stopParser();
 			
 			void addOption(
-				const std::string &name,
 				OptionEvent event,
-				int args_count = 0
+				int args_count,
+				...
 			);
 			void delOption(const std::string &name);
 			

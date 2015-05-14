@@ -102,7 +102,7 @@ namespace RC {
 			printf("\n");
 			printf("# Commands execution debug :\n");
 			for(int i = 0, l = conf.cmds_lines.size() ; i < l ; i++) {
-				printf("> <%s>\n", conf.cmds_lines[i].c_str());
+				printf("> %s\n", conf.cmds_lines[i].c_str());
 			}
 			printf("\n\n");
 		}
