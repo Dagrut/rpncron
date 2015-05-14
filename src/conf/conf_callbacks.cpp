@@ -127,6 +127,8 @@ namespace RC {
 		static void Callbacks::onParserRpn(Parser* parser, const std::string &line) {
 			if(line.size() == 0)
 				return;
+			if(line[0] == '#')
+				return;
 			
 			if(line == parser->end_of_block) {
 				Rpn<void>::parse(parser->expr_buff.str(), parser->current_ci.expr);

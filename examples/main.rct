@@ -85,8 +85,11 @@ Functions:
 I can't say when it will be executed... XD
 Just try it :p
 @RPN 1n#WL,]L
+#This is a comment
 		time_sec 23 * float()
 		3 2 +
+#An other one
+#The line must START with a # to be a comment
 	/
 	int()
 	10 %

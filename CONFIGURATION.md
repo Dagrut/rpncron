@@ -122,6 +122,9 @@ others are functions. Note that the variable values are resolved when they
 are inserted in the queue, and not when they are read by a function. It 
 means that they can be considered as constants rather than variables.
 
+Each line starting with a `#` as its first character will be considered as a 
+comment and ignored.
+
 Here is a list of standard variables :
 
 - **time_sec** The number of seconds since epoch (01/01/1970 00:00:00) as
