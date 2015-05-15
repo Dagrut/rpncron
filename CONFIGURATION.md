@@ -8,20 +8,19 @@ also define a default configuration with `@DFT` so that each next
 configurations will use the values set in this block. They can of course be 
 overridden. Its syntax is exactly the same as the `@CFG` part.
 
-Each block start with its keyword at the beginning of a line, followed by 
-one space and an arbitrary end delimiter. This end delimiter is used to know 
-when the block stops, and have to be written on a line alone to do so. It 
-can contain any character except the end of line (`\n`) character. An 
-example block could be :
+Each block start with its keyword at the beginning of a line, followed by one space and an arbitrary end delimiter. This end delimiter is used to know when the 
+block stops. It can contain any character except the end of line (`\n`) and the space character. Here are two examples :
 
-	@CFG <THIS IS |THE end}{"
+	@CFG <THISIS|THEend}{"
 	Some configuration here...
-	<THIS IS |THE end}{"
+	<THISIS|THEend}{"
 
-The `@CFG` part is read line by line, independantly. The `@RPN` part is read 
-as a whole text block, which can be splitted into several lines. The `@CMD` 
-part may be read as a set of lines or as a block, depending on the 
-configuration.
+or :
+
+	@CFG <THISIS|THEend}{" Some configuration here...<THISIS|THEend}{"
+
+The `@CFG` part is read line by line, independantly. The `@RPN` part is read as a whole text block, which can be splitted into several lines. The `@CMD` part 
+may be read as a list of lines or as a block, depending on the configuration.
 
 Parser details
 --------------
@@ -81,33 +80,23 @@ The `@CFG` and `@DFT` keywords are :
 - **exec** The way the commands will be executed. It can be `system` 
   or `pipe` (default).
   
-  System calls the C system() function for each `@CMD` line. Beware that 
-  according to its man page, using system() after changing the program user 
-  and group can cause somr problems. This option may be removed or rewritten 
-  later, to stop using system().
+  System calls the C system() function for each `@CMD` line. Beware that according to its man page, using system() after changing the program user and group 
+  can cause some problems. This option may be removed or rewritten later, to stop using system(). Obviously, the **shell** option will be ignored if this 
+  execution method is chosen.
   
-  Pipe execute the shell given by the `shell` option, and send it the 
-  contents of the `@CMD` part. You can use anything here, that supports 
-  script piping (Tested only with bash).
-- **env-set** Set the given environment variable before starting the process. 
-  The first value is the variable name. The second is the variable value. 
-  The third is a flag, which requires to override the value if it exists.
-- **env-unset** Unset the given environment variable before starting the 
-  process. You should note that the order of set and unset are kept. It may 
-  not be useful, so this feature may be removed later.
-- **on-error** Tells rpncron what actions it should take when the command 
-  returns a value which is not zero. Possible values are `log`, `mail` and 
-  `ignore`, to log informations, send a mail, or do nothing. Values are 
-  separated with spaces. The default is `log mail`.
-- **on-output** Tells rpncron what actions it should take when the command 
-  prints something on stdout. Possible values are `log`, `mail` and 
-  `ignore`, to log informations, send a mail, or do nothing. Values are 
-  separated with spaces. The default is `log mail`.
-- **on-exec-error** Tells rpncron what actions it should take when a command 
-  execution fails because of a system error (no FD available, read/write 
-  error, fork error, execve error, ...). Possible values are `log`, `mail` 
-  and `ignore`, to log informations, send a mail, or do nothing. Values are 
-  separated with spaces. The default is `log mail`.
+  Pipe execute the shell given by the `shell` option, and send it the contents of the `@CMD` part in its standard input. You can use anything here, that 
+  supports script piping (Tested only with bash for now).
+- **env-set** Set the given environment variable before starting the process. The first value is the variable name. The second is the variable value. The 
+  third is an optional flag. If set to `override`, it will force the environment variable to the given value.
+- **env-unset** Unset the given environment variable before starting the process. You should note that the order of set and unset are kept. It may not be 
+  useful, so this feature may be removed later.
+- **on-error** Tells rpncron what actions it should take when the command returns a value which is not zero. Possible values are `log`, `mail` and `ignore`, 
+  to log informations, send a mail, or do nothing. Values are separated with spaces. The default is `log mail`.
+- **on-output** Tells rpncron what actions it should take when the command prints something on stdout. Possible values are `log`, `mail` and `ignore`, to log 
+  informations, send a mail, or do nothing. Values are separated with spaces. The default is `log mail`.
+- **on-exec-error** Tells rpncron what actions it should take when a command execution fails because of a system error (no FD available, read/write error, 
+  fork error, execve error, ...). Possible values are `log`, `mail` and `ignore`, to log informations, send a mail, or do nothing. Values are separated with 
+  spaces. The default is `log mail`.
 
 For the last three options, two other values are planed : `stop` and `remove`
 , to stop executing lines (with the `system` execution mode), or to remove 
@@ -117,24 +106,17 @@ update or program reload/restart.
 @RPN part
 ---------
 
-This part contains several keywords. Some of them are variables, and some 
-others are functions. Note that the variable values are resolved when they 
-are inserted in the queue, and not when they are read by a function. It 
-means that they can be considered as constants rather than variables.
+This part contains several keywords. Some of them are variables, and some others are functions. Note that the variable values are resolved when they are 
+inserted in the RPN processing queue, and not when they are read by a function. It means that they can be considered as constants rather than variables.
 
-Each line starting with a `#` as its first character will be considered as a 
-comment and ignored.
+Each line starting with a `#` as its first character will be considered as a comment and ignored.
 
 Here is a list of standard variables :
 
-- **time_sec** The number of seconds since epoch (01/01/1970 00:00:00) as
-  returned by time().
-- **time_min** The number of minutes since epoch (01/01/1970 00:00:00) as
-  returned by time() / 60.
-- **time_hour** The number of hours since epoch (01/01/1970 00:00:00) as
-  returned by time() / 3600.
-- **time_day** The number of days since epoch (01/01/1970 00:00:00) as
-  returned by time() / 86400.
+- **time_sec** The number of seconds since epoch (01/01/1970 00:00:00) as returned by time().
+- **time_min** The number of minutes since epoch (01/01/1970 00:00:00) as returned by time() / 60.
+- **time_hour** The number of hours since epoch (01/01/1970 00:00:00) as returned by time() / 3600.
+- **time_day** The number of days since epoch (01/01/1970 00:00:00) as returned by time() / 86400.
 - **time_SoM** (Seconds of Minutes) The value of seconds in the current minute.
 - **time_MoH** (Minutes of Hour) The value of minutes in the current hour.
 - **time_Hod** (Hour of day) The value of hours in the current day.
@@ -146,33 +128,22 @@ Here is a list of standard variables :
 - **time_woy** (week of year) The current week of the year.
 - **time_year** The current year.
 - **time\_is\_dst** It equals 1 if we are in Daylight Saving Time (=> DST).
-- **proc_count** The number of processes that are still running for this 
-  configuration. This values is always zero when starting the program.
-- **exec_count** The number of times the commands of this configuration have 
-  been executed. This values is always zero when starting the program.
+- **proc_count** The number of processes that are still running for this configuration. This values is always zero when starting the program.
+- **exec_count** The number of times the commands of this configuration have been executed. This values is always zero when starting the program.
 
-Note that the ranges of each variable is the same as the one given by 
-localtime(). Here are the ranges that should be used : 0 to 59 for seconds 
-and minutes (Seconds may go to 60 for a leap second), 0 to 23 for the hours, 
-1 to 31 for the day of month, 0 to 6 for the week (0 is sunday), 0 to 11 for 
-the month, 0 to 365 for the day of year, 0 to 4 for the week of the month, 0 
-to 52 for the week of the year (For these last two, the first week is the 
-first one containing a monday). The only modified value is the year, which 
-is the correct year value, and not the years since 1900.
+Note that the ranges of each variable is the same as the one given by localtime(). Here are the ranges that should be used : 0 to 59 for seconds and minutes 
+(Seconds may go to 60 for a leap second), 0 to 23 for the hours, 1 to 31 for the day of month, 0 to 6 for the week (0 is sunday), 0 to 11 for the month, 0 to 
+365 for the day of year, 0 to 4 for the week of the month, 0 to 52 for the week of the year (For these last two, the first week is the first one containing a 
+monday). The only modified value is the year, which is the correct year value, and not the years since 1900.
 
 This part also contains functions. Here is a list of available functions :
 
-- **+ - * / %** Generic operations, including modulo. They require two
-  arguments.
-- **== === != < > <= >=** Generic comparison functions. They require two
-  arguments. Note that === also checks if both variables have the same type 
-  (With ==, 3 is equal to 3.0).
-- **|| && or() and() not() !** Generic logic operations. They require two
-  arguments. `not()` and `!` are the same.
-- **||(*) &&(*) or(*) and(*)** Generic logic operations applied to the whole
-  queue. For example `1 2 3 ||(*)` is a short way for `1 2 3 || ||`.
-- **int() float() string() bool() !! void()** Generic cast operations. They
-  require one arguments. `bool()` and `!!` are the same. `void()` does simply
+- **+ - * / %** Generic operations, including modulo. They require two arguments.
+- **== === != < > <= >=** Generic comparison functions. They require two arguments. Note that === also checks if both variables have the same type (With ==, 3 
+  is equal to 3.0).
+- **|| && or() and() not() !** Generic logic operations. They require two arguments. `not()` and `!` are the same.
+- **||(*) &&(*) or(*) and(*)** Generic logic operations applied to the whole queue. For example `1 2 3 ||(*)` is a short way for `1 2 3 || ||`.
+- **int() float() string() bool() !! void()** Generic cast operations. They require one arguments. `bool()` and `!!` are the same. `void()` does simply 
   nothing and does not read/write anything from/to the queue.
 - **swap() pop(head) pop(tail) rotate(push) rotate(pop) reverse() clear()**
   Queue operations :
@@ -180,40 +151,39 @@ This part also contains functions. Here is a list of available functions :
   - **pop(head)** Remove the first element of the queue.
   - **pop(tail)** Remove the last element of the queue.
   - **rotate(push)** Push the last element of the queue to the front.
-  - **rotate(pop)** Pop the first queue element of the queue and push it to
-    the tail.
+  - **rotate(pop)** Pop the first queue element of the queue and push it to the tail.
   - **reverse()** Reverse the entire queue.
   - **clear()** Empty the queue.
 - **if() ifelse() switch()** Conditions :
-  - **if()** If the first element of the queue is false, the second element is
-    removed. It requires two elements.
-  - **ifelse()** If the first element of the queue is true, the third element
-    is removed. Otherwise, the second element is removed. It requires three
-    elements.
-  - **switch()** Use the first queue value as an integer, which will be used to
-    know which item in the queue will be taken (the other items will be 
-    removed). So 0 means the second item, 1 the third, etc. If the value is 
-    greater or lower than the number of remaining elements, the value modulo 
-    the number of remaining elements is taken.
-- **eval()** Evaluates the given RPN expression. Beware that it will use the
-  same queue, so operations like `clear()` will clear the current queue.
-- **eval(vixie)** Evaluates the generic cron syntax (The one written by Paul
-  Vixie). For example, `"*/2 * * * *"` would be executed each two minutes. 
-  It can also have syntaxes like `*/5,2-4,14` in it, but it does not support 
-  reading month/week days names as in Vixie's cron. It returns a boolean (1 
-  or 0) and can since work only in **bool** mode.
-- **= set()** Variables operations. They both set a variable with the name 
-  taken from the first queue element and the value from the second queue 
-  element. Note that any value can be used as a variable name, so that writing
-  '5 3 =' will turn each '3' single item into '5'.
+  - **if()** If the first element of the queue is false, the second element is removed. It requires two elements.
+  - **ifelse()** If the first element of the queue is true, the third element is removed. Otherwise, the second element is removed. It requires three elements.
+  - **switch()** Use the first queue value as an integer, which will be used to know which item in the queue will be taken (the other items will be removed). 
+    So 0 means the second item, 1 the third, etc. If the value is greater or lower than the number of remaining elements, the value modulo the number of 
+    remaining elements is taken. As an example, you have `5 8 9`. It will take the element at position 5%2, which is `9`.
+- **eval()** Evaluates the given RPN expression. Beware that it will use the same queue, so operations like `clear()` will clear the current queue.
+- **eval(vixie)** Evaluates the generic cron syntax (The one written by Paul Vixie). For example, `"*/2 * * * *"` would be executed each two minutes. It can 
+  also have syntaxes like `*/5,2-4,14` in it, but it does not support reading month/week days names as in Vixie's cron. It returns a boolean (1 or 0) and can 
+  since work only in **bool** mode.
+- **= set()** Variables operations. They both set a variable with the name taken from the first queue element and the value from the second queue element. 
+  Note that any value can be used as a variable name, so that writing '5 3 =' will turn each '3' single item into '5'.
   
-  And because variables cannot be unset nor overriden, this expression :
-  'a b = c b =' will do 'b=a', and then 'a=c' and not 'b=c' as you would 
-  expect, since the second 'b' will be translated to 'a' first. Read the 
-  'Parser details' part for more informations.
-- **min2sec() hour2sec() day2sec() week2sec() year2sec()**
-  **sec2min() sec2hour() sec2day() sec2week() sec2year()** Time unit 
-  conversion. These are short ways for the product/division with the 
-  appropriate time amount in a readable way. For example, min2sec makes a 
-  product by 60 with the first value of the queue. The values are converted 
-  to integers before computation.
+  And because variables cannot be unset nor overriden, this expression : 'a b = c b =' will do 'b=a', and then 'a=c' and not 'b=c' as you would expect, since 
+  the second 'b' will be translated to 'a' first. Read the 'Parser details' part for more informations.
+- **min2sec()** **hour2sec()** **day2sec()** **week2sec()** **year2sec()** **sec2min()** **sec2hour()** **sec2day()** **sec2week()** **sec2year()** Time unit 
+  conversion. These are short ways for the product/division with the appropriate time amount in a readable way. For example, min2sec makes a product by 60 with 
+  the first value of the queue. The values are converted to integers before computation.
+
+@CMD part
+---------
+
+The commands part just contain the commands that should be executed. If the execution mode is `pipe`, you will be able to write things like this :
+
+	@CMD #
+	cat <<EOF > /dev/null
+	Some text
+	Here
+	Going nowhere
+	EOF
+	
+	echo "An other command"
+	#

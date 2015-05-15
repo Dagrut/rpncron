@@ -30,10 +30,7 @@
 #define RC_CONF_CB_CMD			"@CMD "
 #define RC_CONF_CB_DFT			"@DFT "
 
-#define RC_CONF_CB_CFG_L		(sizeof(RC_CONF_CB_CFG) - 1)
-#define RC_CONF_CB_RPN_L		(sizeof(RC_CONF_CB_RPN) - 1)
-#define RC_CONF_CB_CMD_L		(sizeof(RC_CONF_CB_CMD) - 1)
-#define RC_CONF_CB_DFT_L		(sizeof(RC_CONF_CB_DFT) - 1)
+#define SLEN(x) (sizeof(x) - 1)
 
 namespace RC {
 	namespace Conf {
@@ -67,47 +64,33 @@ namespace RC {
 			if(line.size() == 0)
 				return;
 			
-			if(line.compare(0, RC_CONF_CB_CFG_L, RC_CONF_CB_CFG) == 0) {
-				if(parser->have_conf) {
-					throw ParseError(
-						"Found two " RC_CONF_CB_CFG
-						" blocks side by side ",
-						parser->current_line
-					);
-				}
-				
-				parser->end_of_block = line.substr(RC_CONF_CB_CFG_L);
-				parser->have_conf = true;
-				parser->line_cb = onParserConf;
+			#define CHK(_else, _tag, _have, _cb) \
+			_else if(line.compare(0, SLEN(_tag), _tag) == 0) { \
+				if(parser->_have) { \
+					throw ParseError( \
+						"Found two " _tag \
+						" blocks side by side ", \
+						parser->current_line \
+					); \
+				} \
+				 \
+				std::string remain = line.substr(SLEN(_tag)); \
+				std::allocator<char>::size_type end = remain.find(' '); \
+				 \
+				parser->end_of_block = remain.substr(0, end); \
+				parser->_have = true; \
+				parser->line_cb = _cb; \
+				 \
+				if(end < remain.size()) \
+					parser->line_cb(parser, remain.substr(end+1)); \
 			}
-			else if(line.compare(0, RC_CONF_CB_RPN_L, RC_CONF_CB_RPN) == 0) {
-				if(parser->have_expr) {
-					throw ParseError(
-						"Found two " RC_CONF_CB_RPN
-						" blocks side by side ",
-						parser->current_line
-					);
-				}
-				
-				parser->end_of_block = line.substr(RC_CONF_CB_RPN_L);
-				parser->have_expr = true;
-				parser->line_cb = onParserRpn;
-			}
-			else if(line.compare(0, RC_CONF_CB_CMD_L, RC_CONF_CB_CMD) == 0) {
-				if(parser->have_cmds) {
-					throw ParseError(
-						"Found two " RC_CONF_CB_CMD
-						" blocks side by side ",
-						parser->current_line
-					);
-				}
-				
-				parser->end_of_block = line.substr(RC_CONF_CB_CMD_L);
-				parser->have_cmds = true;
-				parser->line_cb = onParserCmds;
-			}
-			else if(line.compare(0, RC_CONF_CB_DFT_L, RC_CONF_CB_DFT) == 0) {
-				parser->end_of_block = line.substr(RC_CONF_CB_DFT_L);
+			
+			CHK(    , RC_CONF_CB_CFG, have_conf, onParserConf)
+			CHK(else, RC_CONF_CB_RPN, have_expr, onParserRpn)
+			CHK(else, RC_CONF_CB_CMD, have_cmds, onParserCmds)
+			
+			else if(line.compare(0, SLEN(RC_CONF_CB_DFT), RC_CONF_CB_DFT) == 0) {
+				parser->end_of_block = line.substr(SLEN(RC_CONF_CB_DFT));
 				parser->line_cb = onParserDefault;
 			}
 		}
@@ -116,8 +99,11 @@ namespace RC {
 			if(line.size() == 0)
 				return;
 			
-			if(line == parser->end_of_block) {
+			std::allocator<char>::size_type end = line.find(parser->end_of_block);
+			
+			if(end != std::string::npos) {
 				parser->line_cb = onParserStart;
+				parseConfBlockLine(parser->current_ci, line.substr(0, end));
 			}
 			else {
 				parseConfBlockLine(parser->current_ci, line);
@@ -130,7 +116,13 @@ namespace RC {
 			if(line[0] == '#')
 				return;
 			
-			if(line == parser->end_of_block) {
+			std::allocator<char>::size_type end = line.find(parser->end_of_block);
+			
+			if(end != std::string::npos) {
+				std::string remain = line.substr(0, end);
+				parser->expr_buff.write(remain.c_str(), remain.size());
+				parser->expr_buff.put('\n');
+				
 				Rpn<void>::parse(parser->expr_buff.str(), parser->current_ci.expr);
 				if(parser->have_cmds) {
 					checkConfEntity(parser->current_ci);
@@ -148,7 +140,11 @@ namespace RC {
 		}
 		
 		static void Callbacks::onParserCmds(Parser* parser, const std::string &line) {
-			if(line == parser->end_of_block) {
+			std::allocator<char>::size_type end = line.find(parser->end_of_block);
+			
+			if(end != std::string::npos) {
+				parser->current_ci.cmds_lines.push_back(line.substr(0, end));
+				
 				if(parser->have_expr) {
 					checkConfEntity(parser->current_ci);
 					parser->output_confs->push_back(parser->current_ci);
@@ -164,7 +160,10 @@ namespace RC {
 		}
 		
 		static void Callbacks::onParserDefault(Parser* parser, const std::string &line) {
-			if(line == parser->end_of_block) {
+			std::allocator<char>::size_type end = line.find(parser->end_of_block);
+			
+			if(end != std::string::npos) {
+				parseConfBlockLine(parser->default_ci, line.substr(0, end));
 				parser->line_cb = onParserStart;
 				parser->reset();
 			}
