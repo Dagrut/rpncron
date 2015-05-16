@@ -42,7 +42,7 @@ namespace RC {
 			struct Task {
 				bool is_user;
 				int task_id;
-				std::string identifier;
+				std::string file;
 				long exec_time;
 				Conf::ConfEntity ce;
 				std::set<OS::Processes::ID> childs;
@@ -65,7 +65,7 @@ namespace RC {
 			void insertConfs(
 				Conf::Parser::Confs &list,
 				bool is_user,
-				const std::string &identifier
+				const std::string &file
 			);
 			
 			bool reloadTask(RunRpncron::Task *task, time_t now);

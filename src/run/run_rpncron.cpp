@@ -32,6 +32,7 @@
 #include "../os/processes.hpp"
 #include "../os/file.hpp"
 #include "../os/directory.hpp"
+#include "../os/dir_crawler.hpp"
 #include "../os/environment.hpp"
 
 #include "../os/logs.hpp"
@@ -85,37 +86,33 @@ namespace RC {
 	}
 	
 	void RunRpncron::loadDirectory(const std::string &path) {
-		OS::Directory dir;
-		OS::File fstats;
-		std::string dir_item;
-		std::string dir_item_path;
+		OS::DirCrawler crawler;
+		OS::DirCrawler::FileInfo file_info;
 		Conf::Parser::Confs tmp_conf_list;
 		
-		if(dir.open(path) == true) {
-			while(dir.next(dir_item) != false) {
-				if(dir_item == "." || dir_item == "..")
-					continue;
-				
-				dir_item_path = path + "/" + dir_item;
-				fstats.open(dir_item_path);
-				
-				if(!fstats.isFile())
-					continue;
-				
-				tmp_conf_list.clear();
-				try {
-					Conf::Parser::parseFile(dir_item_path, tmp_conf_list);
-				}
-				catch(Conf::ParseError &e) {
-					DEBUG("Parse error on file %s : %s\n", dir_item_path.c_str(), e.what());
-					continue;
-				}
-				
-				this->insertConfs(tmp_conf_list, false, dir_item_path);
+		if(!crawler.open(path))
+			return;
+		
+		while(crawler.next(file_info)) {
+			if(file_info.error)
+				continue;
+			
+			if(!file_info.file.isFile())
+				continue;
+			
+			tmp_conf_list.clear();
+			try {
+				Conf::Parser::parseFile(file_info.path, tmp_conf_list);
+			}
+			catch(Conf::ParseError &e) {
+				DEBUG("Parse error on file %s : %s\n", file_info.path.c_str(), e.what());
+				continue;
 			}
 			
-			dir.close();
+			this->insertConfs(tmp_conf_list, false, file_info.path);
 		}
+		
+		crawler.close();
 	}
 	
 	void RunRpncron::loadFile(const std::string &path) {
@@ -142,55 +139,59 @@ namespace RC {
 	}
 	
 	void RunRpncron::loadUsers(const std::string &path) {
-		OS::Directory dir;
-		OS::File fstats;
-		std::string dir_item;
-		std::string dir_item_path;
+		OS::DirCrawler crawler;
+		OS::DirCrawler::FileInfo file_info;
+		std::string username;
 		Conf::Parser::Confs tmp_conf_list;
 		
-		if(dir.open(path) == true) {
-			while(dir.next(dir_item) != false) {
-				if(dir_item == "." || dir_item == "..")
-					continue;
-				
-				try {
-					OS::Users::userNameToUID(dir_item);
-				}
-				catch(OS::SystemError &e) {
-					DEBUG(
-						"Could not load rpncrontab of user %s : "
-						"User does not exist!\n",
-						dir_item.c_str()
-					);
-					continue;
-				}
-				
-				dir_item_path = path + "/" + dir_item;
-				fstats.open(dir_item_path);
-				
-				if(!fstats.isFile())
-					continue;
-				
-				tmp_conf_list.clear();
-				try {
-					Conf::Parser::parseFile(dir_item_path, tmp_conf_list);
-				}
-				catch(Conf::ParseError &e) {
-					DEBUG("Parse error on file %s : %s\n", dir_item_path.c_str(), e.what());
-					continue;
-				}
-				
-				this->insertConfs(tmp_conf_list, true, dir_item);
+		if(!crawler.open(path))
+			return;
+		
+		while(crawler.next(file_info)) {
+			if(file_info.error)
+				continue;
+			
+			if(!file_info.file.isFile())
+				continue;
+			
+			if(path[path.size() - 1] == '/')
+				username = file_info.path.substr(path.size());
+			else
+				username = file_info.path.substr(path.size() + 1);
+			
+			username = username.substr(0, username.find('/'));
+			
+			try {
+				OS::Users::userNameToUID(username);
+			}
+			catch(OS::SystemError &e) {
+				DEBUG(
+					"Could not load rpncrontab of user %s : "
+					"User does not exist!\n",
+					username.c_str()
+				);
+				continue;
 			}
 			
-			dir.close();
+			tmp_conf_list.clear();
+			try {
+				Conf::Parser::parseFile(file_info.path, tmp_conf_list);
+			}
+			catch(Conf::ParseError &e) {
+				DEBUG("Parse error on file %s : %s\n", file_info.path.c_str(), e.what());
+				continue;
+			}
+			
+			this->insertConfs(tmp_conf_list, true, file_info.path);
 		}
+		
+		crawler.close();
 	}
 	
 	void RunRpncron::insertConfs(
 		Conf::Parser::Confs &list,
 		bool is_user,
-		const std::string &identifier
+		const std::string &file
 	) {
 		Task *task = NULL;
 		
@@ -198,7 +199,7 @@ namespace RC {
 			if(task == NULL)
 				task = new Task();
 			task->is_user = is_user;
-			task->identifier = identifier;
+			task->file = file;
 			task->ce = list[i];
 			task->task_id = i;
 			task->exec_count = 0;
@@ -223,10 +224,9 @@ namespace RC {
 			}
 		}
 		catch(std::exception &e) {
-			DEBUG("Error: could not parse configuration %d of %s %s : %s\n",
+			DEBUG("Error: could not parse configuration %d of file %s : %s\n",
 				task->task_id + 1,
-				task->is_user ? "user" : "file",
-				task->identifier.c_str(),
+				task->file.c_str(),
 				e.what()
 			);
 			return(false);
@@ -234,10 +234,9 @@ namespace RC {
 		
 		if(rpn.result_size() == 0) {
 			if(task->ce.conf.mode == Conf::CONF_MODE_OFFSET) {
-				DEBUG("Task %d of %s %s have an empty ouput. Ignoring task!\n",
+				DEBUG("Task %d of file %s have an empty ouput. Ignoring task!\n",
 					task->task_id + 1,
-					task->is_user ? "user" : "file",
-					task->identifier.c_str()
+					task->file.c_str()
 				);
 				return(false);
 			}
@@ -418,10 +417,9 @@ namespace RC {
 		t->exec_count++;
 		
 		DEBUG(
-			"Executing task %d of %s %s (CNT=%ld) @",
+			"Executing task %d of file %s (CNT=%ld) @",
 			t->task_id + 1,
-			t->is_user ? "user" : "file",
-			t->identifier.c_str(),
+			t->file.c_str(),
 			t->childs.size()
 		);
 		fflush(stdout);
@@ -528,18 +526,18 @@ namespace RC {
 		}
 		catch(OS::SystemError &error) {
 			this->onExecError(t, error.what());
-			DEBUG("Error when executing task %d of %s : %s\n",
+			DEBUG("Error when executing task %d of file %s : %s\n",
 				t->task_id,
-				t->identifier.c_str(),
+				t->file.c_str(),
 				error.what()
 			);
 			return;
 		}
 		catch(OS::SystemWarning &warning) {
 			this->onExecError(t, warning.what());
-			DEBUG("Received warning when executing task %d of %s : %s\n",
+			DEBUG("Received warning when executing task %d of file %s : %s\n",
 				t->task_id,
-				t->identifier.c_str(),
+				t->file.c_str(),
 				warning.what()
 			);
 			return;
@@ -555,9 +553,9 @@ namespace RC {
 			return;
 		
 		if(t->ce.conf.exec_err_action & Conf::CONF_ON_ERROR_LOG) {
-			OS::Logs::log(OS::Logs::LVL_WARN, "Error when executing task %d of %s : %s",
+			OS::Logs::log(OS::Logs::LVL_WARN, "Error when executing task %d of file %s : %s",
 				t->task_id,
-				t->identifier.c_str(),
+				t->file.c_str(),
 				err
 			);
 		}
@@ -569,13 +567,13 @@ namespace RC {
 			toSend.addHeader(
 				"Subject",
 				std::string("[RPNCRON] Command execution error of task ") +
-					Utils::format("%d", t->task_id) + " / " + t->identifier
+					Utils::format("%d", t->task_id) + " / " + t->file
 			);
 			
 			body = "An error was encountered when executing task ";
 			body += Utils::format("%d", t->task_id);
-			body += " of ";
-			body += t->identifier;
+			body += " of file ";
+			body += t->file;
 			body += " : ";
 			body += err;
 			
@@ -608,16 +606,16 @@ namespace RC {
 			!(t->ce.conf.code_err_action & Conf::CONF_ON_ERROR_IGNORE);
 		
 		if(is_retcode) {
-			OS::Logs::log(OS::Logs::LVL_WARN, "Task %d of %s failed with returned code %d",
+			OS::Logs::log(OS::Logs::LVL_WARN, "Task %d of file %s failed with returned code %d",
 				t->task_id,
-				t->identifier.c_str(),
+				t->file.c_str(),
 				return_code
 			);	
 		}
 		else if(is_output) {
-			OS::Logs::log(OS::Logs::LVL_WARN, "Task %d of %s printed an output of %d bytes",
+			OS::Logs::log(OS::Logs::LVL_WARN, "Task %d of file %s printed an output of %d bytes",
 				t->task_id,
-				t->identifier.c_str(),
+				t->file.c_str(),
 				output.size()
 			);
 		}
@@ -637,13 +635,13 @@ namespace RC {
 			toSend.addHeader(
 				"Subject",
 				std::string("[RPNCRON] Execution error of task ") +
-					Utils::format("%d", t->task_id) + " / " + t->identifier
+					Utils::format("%d", t->task_id) + " / " + t->file
 			);
 			
 			toSend.appendToBody("The task ");
 			toSend.appendToBody(Utils::format("%d", t->task_id));
-			toSend.appendToBody(" of ");
-			toSend.appendToBody(t->identifier);
+			toSend.appendToBody(" of file ");
+			toSend.appendToBody(t->file);
 			toSend.appendToBody(" exited with return code ");
 			toSend.appendToBody(Utils::format("%d", return_code));
 			toSend.appendToBody(" and an output of ");

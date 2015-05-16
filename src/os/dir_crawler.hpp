@@ -16,8 +16,8 @@
  * along with rpncron.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HPP_RPNCRON_OS_DIRECTORY_
-#define _HPP_RPNCRON_OS_DIRECTORY_
+#ifndef _HPP_RPNCRON_OS_DIR_CRAWLER_
+#define _HPP_RPNCRON_OS_DIR_CRAWLER_
 
 #include "exceptions.hpp"
 #include "file.hpp"
