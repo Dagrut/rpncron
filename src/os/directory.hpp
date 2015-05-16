@@ -39,6 +39,8 @@ namespace RC {
 				bool next(std::string &name);
 				bool current(std::string &name) const;
 				void rewind();
+				static bool remove(const std::string &path);
+				static bool isEmpty(const std::string &path);
 				
 			private:
 				DIR *dir;

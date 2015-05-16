@@ -44,6 +44,7 @@ add_executable(rpncrontab
 	src/args/args_doc_rct.cpp
 	src/os/users.cpp
 	src/os/file.cpp
+	src/os/directory.cpp
 	src/os/processes.cpp
 	src/os/environment.cpp
 	src/os/dir_crawler.cpp

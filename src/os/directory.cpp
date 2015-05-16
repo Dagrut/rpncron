@@ -17,8 +17,10 @@
  */
 
 #include "directory.hpp"
+#include "file.hpp"
 
 #include <unistd.h>
+#include <cstdio>
 
 namespace RC {
 	OS::Directory::Directory() :
@@ -86,5 +88,26 @@ namespace RC {
 		rewinddir(this->dir);
 		this->end = false;
 		this->cursor = NULL;
+	}
+	
+	bool OS::Directory::remove(const std::string &path) {
+		if(::remove(path.c_str()) == 0)
+			return(true);
+		return(false);
+	}
+	
+	bool OS::Directory::isEmpty(const std::string &path) {
+		Directory d;
+		std::string name;
+		
+		if(!d.open(path))
+			throw SystemError(std::string("Could not open the directory ") + path);
+		
+		while(d.next(name)) {
+			if(name != "." && name != "..")
+				return(false);
+		}
+		
+		return(true);
 	}
 }

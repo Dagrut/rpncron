@@ -78,6 +78,7 @@ namespace RC {
 			}
 			
 			try {
+				OS::File::mkdir(path, true, true);
 				OS::File::move(tmp_path, path);
 			}
 			catch(OS::SystemError &e) {
