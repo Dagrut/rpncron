@@ -1,6 +1,6 @@
 /*
  * This file is part of rpncron.
- * (C) 2014 Maxime Ferrino
+ * (C) 2014,2015 Maxime Ferrino
  * 
  * rpncron is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ namespace RC {
 			ArgsRct();
 			
 			void parse(int argc, char **argv);
+			bool check();
 			
 			#define ITEM(exec_callback, argcnt, ...) \
 				static void exec_callback( \

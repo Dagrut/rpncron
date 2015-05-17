@@ -123,8 +123,8 @@ this directory. The only thing they will do is creating/updating files in
 or if the return code is not OK, they may be written into your syslog log 
 file and/or sent by mail to yourself.
 
-You can read details about the configuration files syntax in the 
-[CONFIGURATION.md](./CONFIGURATION.md) file.
+You can read details about the configuration files syntax in the [doc/rpncron-config.md](./doc/rpncron-config.md) file. You can also read how to use the 
+rpncron and rpncrontab commands in [doc/rpncron.md](./doc/rpncron.md) and [doc/rpncrontab.md](./doc/rpncrontab.md).
 
 How is the development going?
 -----------------------------
@@ -151,10 +151,3 @@ Here is a list (YEAH!) of what is missing and what is done :
 - [ ] Check for file updates in an other thread and combine the process of 
       waiting for updates and sleep() in the main run loop, using select().
 - [ ] And many more features, that I will pick from other projects... `;-)`
-
-A last word for the ASCII camera?
----------------------------------
-
-Yes. When I talk about portability, I don't include windows.
-
-That's all, folks!

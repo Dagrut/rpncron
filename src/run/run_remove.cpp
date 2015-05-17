@@ -1,6 +1,6 @@
 /*
  * This file is part of rpncron.
- * (C) 2014 Maxime Ferrino
+ * (C) 2014,2015 Maxime Ferrino
  * 
  * rpncron is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,12 +44,12 @@ namespace RC {
 			path = base + '/' + args.getRctFile();
 			OS::File file(path);
 			if(!file.isFile()) {
-				printf("This rpncrontab was not found for user '%s'\n", user.c_str());
+				printf("The rpncrontab file %s was not found for user '%s'\n", args.getRctFile().c_str(), user.c_str());
 				return;
 			}
 			
 			if(!OS::File::remove(path)) {
-				printf("The rpncrontab file %s for user '%s' could not be removed!\n", path.c_str(), user.c_str());
+				printf("The rpncrontab file %s for user '%s' could not be removed!\n", args.getRctFile().c_str(), user.c_str());
 				return;
 			}
 			

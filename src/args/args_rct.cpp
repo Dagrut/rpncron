@@ -1,6 +1,6 @@
 /*
  * This file is part of rpncron.
- * (C) 2014 Maxime Ferrino
+ * (C) 2014,2015 Maxime Ferrino
  * 
  * rpncron is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,10 @@
 #include "args_doc_rct.hpp"
 #include "../os/users.hpp"
 #include "../rpncron.hpp"
+#include "../utils/strings.hpp"
+
+#include <deque>
+#include <string>
 
 #include <cstdlib>
 #include <ctime>
@@ -57,6 +61,44 @@ namespace RC {
 		#include "args_rct.itm"
 		
 		parser.parse(argc, argv, unknown_args);
+	}
+	
+	bool ArgsRct::check() {
+		switch(this->action) {
+			case ArgsRct::ACTION_EDIT:
+			case ArgsRct::ACTION_REMOVE:
+			case ArgsRct::ACTION_PRINT: {
+				std::deque<std::string> split;
+				std::deque<std::string>::iterator it;
+				
+				Utils::Strings::split(this->rct_file, "/", split);
+				
+				it = split.begin();
+				while(it != split.end()) {
+					if(it->size() == 0 || *it == ".") {
+						it = split.erase(it);
+					}
+					else if(*it == "..") {
+						if(it != split.begin()) {
+							it--;
+							it = split.erase(it);
+						}
+						it = split.erase(it);
+					}
+					else {
+						it++;
+					}
+				}
+				
+				this->rct_file.erase();
+				Utils::Strings::join(split, "/", this->rct_file);
+			}
+				break;
+			default:
+				break;
+		}
+		
+		return(true);
 	}
 	
 	void ArgsRct::onVerbosity(

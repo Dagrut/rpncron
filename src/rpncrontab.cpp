@@ -1,6 +1,6 @@
 /*
  * This file is part of rpncron.
- * (C) 2014 Maxime Ferrino
+ * (C) 2014,2015 Maxime Ferrino
  * 
  * rpncron is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ int main(int argc, char **argv) {
 	RC::ArgsRct args;
 	
 	args.parse(argc, argv);
+	if(!args.check())
+		return(EXIT_FAILURE);
 	
 	switch(args.getAction()) {
 		case RC::ArgsRct::ACTION_HELP:

@@ -1,6 +1,6 @@
 /*
  * This file is part of rpncron.
- * (C) 2014 Maxime Ferrino
+ * (C) 2014,2015 Maxime Ferrino
  * 
  * rpncron is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ namespace RC {
 	void ArgsDocRct::showAllDocumentation(ArgsRct &current) {
 		printf("%s",
 "Rpncron, version " RPNCRON_PROGRAM_VERSION "\n"
-"Copyright (C) 2014 Maxime Ferrino.\n"
+"Copyright (C) 2014,2015 Maxime Ferrino.\n"
 "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n"
 "\n"
 "This is free software; you are free to change and redistribute it.\n"
