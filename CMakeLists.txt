@@ -54,7 +54,7 @@ add_executable(rpncrontab
 	src/run/run_print.cpp
 )
 
-target_link_libraries(rpncron m)
+target_link_libraries(rpncrontab m)
 
 install(TARGETS
 	rpncron
@@ -62,4 +62,15 @@ install(TARGETS
 	RUNTIME DESTINATION bin
 )
 
-install(FILES README.md CONFIGURATION.md DESTINATION share/doc/rpncron)
+install(FILES
+	README.md
+	doc/rpncron.md
+	doc/rpncrontab.md
+	doc/rpncron-config.md
+	
+	DESTINATION share/doc/rpncron
+)
+
+install(FILES extra/init.d/rpncron DESTINATION /etc/init.d)
+
+install(FILES extra/default/rpncron DESTINATION /etc/default)

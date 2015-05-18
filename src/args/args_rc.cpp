@@ -70,7 +70,7 @@ namespace RC {
 		const std::vector<std::string> &values
 	) {
 		ArgsRc *args = parser->getData<ArgsRc>();
-		args->daemonize = ArgsRc::getDefaultDaemonize();
+		args->daemonize = !ArgsRc::getDefaultDaemonize();
 	}
 	
 	void ArgsRc::onRun(
