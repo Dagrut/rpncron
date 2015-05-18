@@ -262,24 +262,24 @@ namespace RC {
 			catch(OS::SystemError &e) {
 				FATAL("Could not daemonize : %s\n", e.what());
 			}
-			
-			try {
-				if(this->args.getPidPath().size() > 0) {
-					OS::File::putContent(
-						this->args.getPidPath(),
-						Utils::format("%d", (int) OS::Processes::getPid())
-					);
-				}
-			}
-			catch(OS::SystemError &e) {
-				OS::Logs::log(
-					OS::Logs::LVL_CRIT,
-					"Error writing pid (%d) into file %s : %s",
-					(int) OS::Processes::getPid(),
-					this->args.getPidPath().c_str(),
-					e.what()
+		}
+		
+		try {
+			if(this->args.getPidPath().size() > 0) {
+				OS::File::putContent(
+					this->args.getPidPath(),
+					Utils::format("%d", (int) OS::Processes::getPid())
 				);
 			}
+		}
+		catch(OS::SystemError &e) {
+			OS::Logs::log(
+				OS::Logs::LVL_CRIT,
+				"Error writing pid (%d) into file %s : %s",
+				(int) OS::Processes::getPid(),
+				this->args.getPidPath().c_str(),
+				e.what()
+			);
 		}
 	}
 	

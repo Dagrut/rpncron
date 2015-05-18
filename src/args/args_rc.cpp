@@ -108,8 +108,7 @@ namespace RC {
 		const std::vector<std::string> &values
 	) {
 		ArgsRc *args = parser->getData<ArgsRc>();
-		args->action = ACTION_RUN_DIR;
-		args->run_path = values[0];
+		args->pid_path = values[0];
 	}
 	
 	void ArgsRc::onDebugFile(
