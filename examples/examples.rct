@@ -1,0 +1,31 @@
+One that you may use if you can't get out of your computer early.
+It shows a notification each 30 seconds between 21 PM and midnight to ask you to go to your bed :D
+@CFG ~
+	mode offset
+	max-proc 20
+	user dagrut
+	group dagrut
+ ~
+@RPN ~
+		1 day2sec() "v1day" =
+		3 hour2sec() "v3hours" =
+		v1day time_sec v3hours + v1day % -
+		30 time_sec 30 % -
+	time_Hod 21 >=
+	ifelse()
+~
+@CMD ~
+	notify-send SLEEP "Go to bed now"
+~
+
+An other one, if you have a 8-core CPU and some heavy tasks to execute multiple times :
+@CFG ~
+	mode offset
+	max-proc 16
+~
+@RPN ~
+		600 time_sec 600 % -
+		300 proc_count *
+	+
+~
+@CMD ~ #Some heavy task ~
