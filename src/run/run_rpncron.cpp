@@ -34,6 +34,7 @@
 #include "../os/directory.hpp"
 #include "../os/dir_crawler.hpp"
 #include "../os/environment.hpp"
+#include "../os/time.hpp"
 
 #include "../os/logs.hpp"
 #include "../os/mail.hpp"
@@ -67,7 +68,7 @@ namespace RC {
 	
 	RunRpncron::RunRpncron(ArgsRc &args) : args(args) {
 		ArgsRc::ConfAction action;
-		time(&this->now);
+		this->now = OS::Time::get(true);
 		
 		action = args.getAction();
 		if(action == ArgsRc::ACTION_RUN) {
@@ -299,7 +300,7 @@ namespace RC {
 		this->initSignals();
 		
 		while(RunRpncron::keep_running) {
-			time(&this->now);
+			this->now = OS::Time::get(true);
 			
 			it = this->tasks_db.begin();
 			while(it != this->tasks_db.end()) {
@@ -336,7 +337,7 @@ namespace RC {
 			it = this->tasks_db.begin();
 			t = *it;
 			
-			time(&this->now);
+			this->now = OS::Time::get(true);
 			
 			if(t->exec_time <= this->now)
 				sleep_sec = 1;

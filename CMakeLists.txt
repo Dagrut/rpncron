@@ -27,6 +27,7 @@ add_executable(rpncron
 	src/os/logs.cpp
 	src/os/mail.cpp
 	src/os/dir_crawler.cpp
+	src/os/time.cpp
 	src/run/run_rpncron.cpp
 	src/run/run.cpp
 	src/run/run_debug.cpp

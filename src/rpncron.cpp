@@ -23,12 +23,15 @@
 #include "run/run_remove.hpp"
 #include "run/run_edit.hpp"
 #include "run/run_rpncron.hpp"
+#include "os/time.hpp"
 
 #include <cstdio>
 #include <cstdlib>
 
 int main(int argc, char **argv) {
 	RC::ArgsRc args;
+	
+	RC::OS::Time::init();
 	
 	args.parse(argc, argv);
 	

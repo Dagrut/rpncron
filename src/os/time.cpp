@@ -16,28 +16,30 @@
  * along with rpncron.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HPP_RPNCRON_RUN_RUN_
-#define _HPP_RPNCRON_RUN_RUN_
+#include "time.hpp"
 
-#include "../rpn/rpn.hpp"
-#include "../rpn/rpn_simple_token.hpp"
-#include "../args/args_rc.hpp"
-#include "../conf/conf_parser.hpp"
-#include "../utils/ptr_comp.hpp"
-#include "../os/processes.hpp"
-#include "../os/time.hpp"
-
-#include <set>
-
-#include <csignal>
+#include <ctime>
 
 namespace RC {
-	namespace Run {
-		void prepare(Rpn<RpnSimpleToken> &rpn, OS::Time::Tstamp now, int proc_count, long exec_count);
-		void prepareTimeVars(Rpn<RpnSimpleToken> &rpn, OS::Time::Tstamp now);
-		void prepareProcVars(Rpn<RpnSimpleToken> &rpn, int proc_count, long exec_count);
-		void prepareFunctions(Rpn<RpnSimpleToken> &rpn);
-	};
+	void OS::Time::init() {
+		tzset();
+	}
+	
+	OS::Time::Tstamp OS::Time::get(bool utc) {
+		Tstamp now;
+		
+		time(&now);
+		if(utc)
+			now -= timezone; /* libc global >_<... set by tzset */
+		
+		return(now);
+	}
+	
+	OS::Time::Tstamp OS::Time::addTz(OS::Time::Tstamp time) {
+		return(time - timezone);
+	}
+	
+	OS::Time::Tstamp OS::Time::subTz(OS::Time::Tstamp time) {
+		return(time + timezone);
+	}
 }
-
-#endif

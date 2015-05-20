@@ -31,18 +31,20 @@
 #include "../os/file.hpp"
 #include "../os/directory.hpp"
 #include "../os/environment.hpp"
+#include "../os/time.hpp"
 
 #include "../os/logs.hpp"
 #include "../os/mail.hpp"
 
 #include "../rpncron.hpp"
 
+#include <ctime>
 #include <cstdio>
 #include <cstdlib>
 
 
 namespace RC {
-	void Run::prepare(Rpn<RpnSimpleToken> &rpn, long now, int proc_count, long exec_count) {
+	void Run::prepare(Rpn<RpnSimpleToken> &rpn, OS::Time::Tstamp now, int proc_count, long exec_count) {
 		rpn.clearVariables();
 		rpn.clearFunctions();
 		rpn.clearQueue();
@@ -52,14 +54,14 @@ namespace RC {
 		Run::prepareFunctions(rpn);
 	}
 	
-	void Run::prepareTimeVars(Rpn<RpnSimpleToken> &rpn, long now) {
+	void Run::prepareTimeVars(Rpn<RpnSimpleToken> &rpn, OS::Time::Tstamp now) {
 		rpn.addVariable("time_sec",  new RpnSimpleToken(now));
 		rpn.addVariable("time_min",  new RpnSimpleToken(now/60));
 		rpn.addVariable("time_hour", new RpnSimpleToken(now/3600));
 		rpn.addVariable("time_day",  new RpnSimpleToken(now/86400));
 		
 		struct tm date;
-		time_t now_time = now;
+		OS::Time::Tstamp now_time = OS::Time::subTz(now);
 		
 		localtime_r(&now_time, &date);
 		

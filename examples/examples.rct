@@ -7,15 +7,20 @@ It shows a notification each 30 seconds between 21 PM and midnight to ask you to
 	group dagrut
  ~
 @RPN ~
-		1 day2sec() "v1day" =
-		3 hour2sec() "v3hours" =
-		v1day time_sec v3hours + v1day % -
+		2 "space" =
+		1 day2sec() "1day" =
+		space hour2sec() "secspace" =
+		24 space - "left" =
+
+		1day time_sec 1day % -
+		secspace -
+
 		30 time_sec 30 % -
-	time_Hod 21 >=
+	time_Hod left >=
 	ifelse()
 ~
 @CMD ~
-	notify-send SLEEP "Go to bed now"
+	notify-send SLEEP "Go to bed now $USER"
 ~
 
 An other one, if you have a 8-core CPU and some heavy tasks to execute multiple times :

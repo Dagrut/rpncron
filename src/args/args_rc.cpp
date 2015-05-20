@@ -21,9 +21,9 @@
 #include "args_doc_rc.hpp"
 #include "../os/users.hpp"
 #include "../rpncron.hpp"
+#include "../os/time.hpp"
 
 #include <cstdlib>
-#include <ctime>
 #include <strings.h>
 
 namespace RC {
@@ -43,7 +43,7 @@ namespace RC {
 	std::string ArgsRc::getDefaultDebugFile() {    return(""); }
 	std::string ArgsRc::getDefaultRunPath() {      return(""); }
 	std::string ArgsRc::getDefaultPidPath() {      return(""); }
-	time_t ArgsRc::getDefaultDebugStart() {        return(time(NULL)); }
+	time_t ArgsRc::getDefaultDebugStart() {        return(OS::Time::get(true)); }
 	
 	void ArgsRc::parse(int argc, char **argv) {
 		ArgsParser parser;
@@ -119,7 +119,7 @@ namespace RC {
 		ArgsRc *args = parser->getData<ArgsRc>();
 		args->debug_file = values[0];
 		if(strcasecmp(values[1].c_str(), "now") == 0)
-			time(&args->debug_start);
+			args->debug_start = OS::Time::get(true);
 		else
 			args->debug_start = atol(values[1].c_str());
 		args->action = ACTION_DEBUG_FILE;

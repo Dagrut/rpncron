@@ -28,7 +28,6 @@
 
 #include <set>
 
-#include <ctime>
 #include <csignal>
 
 namespace RC {

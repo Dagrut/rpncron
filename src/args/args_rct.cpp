@@ -27,7 +27,6 @@
 #include <string>
 
 #include <cstdlib>
-#include <ctime>
 #include <strings.h>
 
 namespace RC {
