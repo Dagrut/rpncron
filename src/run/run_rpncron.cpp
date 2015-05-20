@@ -497,10 +497,10 @@ namespace RC {
 		
 		OS::Environment::setCwd(t->ce.conf.cwd);
 		try {
-			if(OS::Users::getCurrentUserID() != 0) {
-				OS::Processes::setgid(t->ce.conf.group);
+			if(OS::Users::getCurrentUserID() != t->ce.conf.user)
 				OS::Processes::setuid(t->ce.conf.user);
-			} 
+			if(OS::Users::getCurrentGroupID() != t->ce.conf.group)
+				OS::Processes::setgid(t->ce.conf.group);
 		}
 		catch(std::exception &e) {}
 	}
